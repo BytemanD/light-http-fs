@@ -1,7 +1,8 @@
 import inspect
 
-from xmlrpc import client
-from xmlrpc.server import SimpleXMLRPCServer
+import xmlrpclib
+from SimpleXMLRPCServer import SimpleXMLRPCServer
+
 
 from easy2use.common import log
 
@@ -32,4 +33,4 @@ class XMLRpcServer(base.BaseRpcServer):
 class XMLRpcClient(base.BaseRpcClient):
 
     def init_client(self):
-        return client.ServerProxy(self.transport, allow_none=True)
+        return xmlrpclib.ServerProxy(self.transport, allow_none=True)
