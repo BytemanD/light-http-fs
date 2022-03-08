@@ -1,0 +1,2 @@
+flask
+git+https://github.com/fjboy/easy-to-use.git@v1.0.0

@@ -1,0 +1,28 @@
+<h5>UI</h5>
+<table class="table table-hover table-sm " style="width: 100%;">
+    <thead class="table-light">
+        <tr>
+            <th>{{I18N.t('name')}}</th>
+            <th>{{I18N.t('value')}}</th>
+            <th>{{I18N.t('description')}}</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr v-for="item in settingItems">
+            <td>{{item.name}}</td>
+            <td>
+                <template v-if="item.type=='range'">
+                    <b-form-input  v-model="item.current" type="range" :min="item.min" :max="item.max"
+                        v-b-tooltip.hover :title="`${item.current}${item.unit}, ${I18N.t('range')}: ${item.min}~${item.max}`"></b-form-input>
+                </template>
+                <template v-if="item.type=='switch'">
+                    <b-form-checkbox v-model="item.current" name="check-button" switch></b-form-checkbox>
+                </template>
+                <template v-if="item.type=='input'">
+                    <b-form-input v-model="item.current" type="input" value="item.current"></b-form-input>
+                </template>
+            </td>
+            <td>{{I18N.t(item.description)}}</td>
+        </tr>
+    </tbody>
+</table>

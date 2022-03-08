@@ -1,0 +1,13 @@
+<svg width="131" height="100" xmlns="http://www.w3.org/2000/svg">
+
+ <g>
+  <title>Layer 1</title>
+  <path id="svg_1" d="m0,34.47l31.25,65.53l-15.5,-63.66l-15.75,-1.87z" opacity="0.6" fill="#009fe8"/>
+  <path id="svg_2" d="m12.5,22.98l3.25,13.36l15.5,63.66l0,-72.75l-18.75,-4.27z" opacity="0.8" fill="#009fe8"/>
+  <path id="svg_3" d="m31.25,11.49l0,88.51l15.01,-60.05l2.2,-8.79l2.97,-11.9l-20.18,-7.77z" fill="#009fe8"/>
+  <path id="svg_4" d="m56.25,0l-4.82,19.26l-2.97,11.9l-2.2,8.79l-15.01,60.05l75,0l25,-50l-75,-50zm41.66,18.58l5.36,3.9l5.43,3.94l-1.39,4.17l3.81,2.53l1.33,-4l2,-5.99l-3.7,-2.86l-5.36,-4.15l-5.3,-4.09l-4.67,-3.62l-2.25,6.76l-1.6,4.78l4.81,3.21l1.53,-4.58z" fill="#0f64ac"/>
+  <text opacity="0.6" transform="matrix(1.9762 0 0 2.04811 -41.0962 -32.9526)" font-style="italic" xml:space="preserve" text-anchor="start" font-family="'Asap'" font-size="22" id="svg_9" y="56.29535" x="41.51823" stroke-width="0" fill="#e1ebef">lhfs</text>
+  <polyline stroke-linecap="round" id="svg_12" points="7.606833457946777,82.7580795288086 7.606833457946777,82.7580795288086 " stroke-width="0" stroke="#000" fill="none"/>
+  <polyline stroke-linecap="round" id="svg_14" points="14.375024795532227,82.41967010498047 " opacity="NaN" stroke-width="0" stroke="#000" fill="none"/>
+ </g>
+</svg>
