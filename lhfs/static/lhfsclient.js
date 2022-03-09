@@ -123,7 +123,7 @@ class LHFSClient {
             let safe_path = this._safe_path(path);
             // return axios.get(`/fs${safe_path}?showAll=${showAll}&node=${this.context.node}`)
             return axios.get(`/v1/fs/${this.context.node}${safe_path}`,
-                             {params: {showAll: showAll}})
+                             {params: {showAll: showAll, sort: true}})
         };
         this.rm = function (path, force=false) {
             let safe_path = this._safe_path(path);
@@ -173,8 +173,13 @@ class LHFSClient {
         this.logout = function(){
             return axios.delete('/auth')
         };
-        this.getNodes = function(){
+        this.listNodes = function(){
             return axios.get('/nodes')
+        }
+        this.zipDirectory = function(zipPath){
+            console.debug(`zip path: ${zipPath}`)
+            return axios.post('/action',
+                              {'doZip': {'path': zipPath}})
         }
     }
 }

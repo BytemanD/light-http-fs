@@ -1,3 +1,12 @@
+import enum
+
+
+class Unit(enum.Enum):
+    KB = 1024
+    MB = KB * 1024
+    GB = MB * 1024
+
+
 MASTER = 'master'
 SLAVE = 'slave'
 
@@ -8,3 +17,8 @@ RPC_CLASS_MAPPING = {
                 'lhfs.rpc.impl.zero.ZeroRpcClient')
 }
 
+FOLDER = 'folder'
+FILE = 'file'
+
+ACTIVE = 'active'
+DOWN = 'down'

@@ -4,8 +4,7 @@
             <b-icon icon="trash2"></b-icon> {{I18N.t('cleanupUploadCompleted')}}</b-button>
         </b-link>
     </div>
-    <!-- <b-button size="sm" class="my-12 my-sm-0" type="link" v-on:click="cleanupCompleted()"> -->
-        
+
     <b-tabs content-class="mt-3">
         <b-tab :title="I18N.t('uploading')" active>
             <template v-for="(item, index) in uploadQueue.tasks">

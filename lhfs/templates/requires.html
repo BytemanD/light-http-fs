@@ -1,19 +1,68 @@
+{% if STATIC_CDN %}
 <!-- Vue -->
-<script type="text/javascript" src="/static/vue/vue.min.js"></script>
-<script type="text/javascript" src="/static/vue/vue-i18n.js"></script>
+<script type="text/javascript" src="[[ STATIC_CDN ]]/npm/vue@2.6.14/dist/vue.min.js"></script>
+<script type="text/javascript" src="[[ STATIC_CDN ]]/npm/vue-i18n@8.25.0/dist/vue-i18n.min.js"></script>
+
+<!-- Vue -->
+<script type="text/javascript" src="[[ STATIC_CDN ]]/npm/vue@2.6.14/dist/vue.min.js"></script>
+<script type="text/javascript" src="[[ STATIC_CDN ]]/npm/vue-i18n@8.25.0/dist/vue-i18n.min.js"></script>
+<script type="text/javascript" src="[[ STATIC_CDN ]]/npm/vue-cookies@1.7.4/vue-cookies.min.js"></script>
+
 <!-- bootstrap css -->
-<link rel="stylesheet" href="/static/bootstrap-4.6.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="[[ STATIC_CDN ]]/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" >
+
 <!-- bootstrap-vue  -->
-<link rel="stylesheet" href="/static/bootstrap-vue/bootstrap-vue.min.css">
-<script type="application/javascript" src="/static/bootstrap-vue/bootstrap-vue.min.js"></script>
-<script type="application/javascript" src="/static/bootstrap-vue/bootstrap-vue-icons.min.js"></script>
+<link rel="stylesheet" href="[[ STATIC_CDN ]]/npm/bootstrap-vue@2.21.2/dist/bootstrap-vue.min.css"/>
+<script type="application/javascript" src="[[ STATIC_CDN ]]/npm/bootstrap-vue@2.21.2/dist/bootstrap-vue.min.js"></script>
+<script type="application/javascript" src="[[ STATIC_CDN ]]/npm/bootstrap-vue@2.21.2/dist/bootstrap-vue-icons.min.js"></script>
+
 <!-- qrcode -->
-<script src="/static/qrcode.js"></script>
+<script src="[[ STATIC_CDN ]]/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
 <!-- axios -->
-<script src="/static/axios.min.js"></script>
+<script src="[[ STATIC_CDN ]]/npm/axios@0.26.1/dist/axios.min.js"></script>
+
+<!-- markdown -->
+<script src="[[ STATIC_CDN ]]/npm/marked/marked.min.js"></script>
+
+<!-- highlight -->
+<link rel="stylesheet" href="[[ STATIC_CDN ]]/ajax/libs/highlight.js/11.5.0/styles/default.min.css">
+<script src="[[ STATIC_CDN ]]/ajax/libs/highlight.js/11.5.0/highlight.min.js"></script>
+<!-- and it's easy to individually load additional languages -->
+<script src="[[ STATIC_CDN ]]/ajax/libs/highlight.js/11.5.0/languages/go.min.js"></script>
+
+{% else %}
+
+<!-- Vue -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vue-i18n@8.25.0/dist/vue-i18n.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vue-cookies@1.7.4/vue-cookies.min.js"></script>
+
+<!-- bootstrap css -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" >
+<!-- bootstrap-vue  -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-vue@2.21.2/dist/bootstrap-vue.min.css"/>
+<script type="application/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap-vue@2.21.2/dist/bootstrap-vue.min.js"></script>
+<script type="application/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap-vue@2.21.2/dist/bootstrap-vue-icons.min.js"></script>
+
+<!-- qrcode -->
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
+<!-- axios -->
+<script src="https://cdn.jsdelivr.net/npm/axios@0.26.1/dist/axios.min.js"></script>
+
+<!-- markdown -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<!-- highlight -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11.5.0/styles/default.min.css">
+<script type="application/javascript" src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11.5.0/highlight.min.js"></script>
+<!-- and it's easy to individually load additional languages -->
+<!-- <script type="application/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.0/languages/go.min.js"></script> -->
+
+{% endif %}
+
+<link rel="icon" type='image/x-icon' href="/favicon.ico">
 
 <script type="text/javascript" src="/static/i18n.js"></script>
 <script type="text/javascript" src="/static/lib.js"></script>
-
-<link rel="icon" type='image/x-icon' href="/favicon.ico">

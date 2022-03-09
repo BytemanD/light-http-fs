@@ -1,0 +1,66 @@
+<div class="col-lg-3 col-md-3 col-sm-12">
+    <b-form-select v-model="context.node" :options="nodes" size="sm" :state="nodes_info[context.node].status=='active'"
+        v-on:change="refreshChildren()"></b-form-select>
+</div>
+<div class="col-lg-4 col-md-8 col-sm-12">
+    <b-button-group size="sm">
+        <label for="inputUploadFile" class="btn btn-sm btn-outline-secondary">{{I18N.t('uploadFiles')}}</label>
+        <label for="inputUploadDir" class="btn btn-sm btn-outline-secondary">{{I18N.t('uploadDir')}}</label>
+    </b-button-group>
+    <b-button-group size="sm">
+        <label class="btn btn-sm btn-outline-secondary" v-b-modal.modal-newdir v-b-tooltip.hover
+            :title="I18N.t('newDir')">
+            <b-icon icon="folder-plus" variant="info"></b-icon>
+        </label>
+        <label class="btn btn-sm btn-outline-secondary" v-on:click="deleteSeleted()" v-b-tooltip.hover
+            :title="I18N.t('delete')">
+            <b-icon icon="trash" variant="danger"></b-icon>
+        </label>
+    </b-button-group>
+
+    <b-button-group size="sm">
+        <label class="btn btn-sm btn-outline-secondary" v-on:click="changeDisplayMode('table')">
+            <b-icon icon="table"></b-icon>
+        </label>
+        <label class="btn btn-sm btn-outline-secondary" v-on:click="changeDisplayMode('grid')">
+            <b-icon icon="grid"></b-icon>
+        </label>
+    </b-button-group>
+    <label class="btn btn-sm btn-outline-secondary" v-on:click="refreshChildren()" v-b-tooltip.hover :title="I18N.t('refresh')">
+        <b-icon icon="arrow-repeat"></b-icon>
+    </label>
+
+    <form id="formFileUpload">
+        <input type="file" name="file" class="custom-file-input" id="inputUploadFile" required hidden multiple
+            v-on:change="uploadFile()">
+    </form>
+    <form id="formDirUpload">
+        <input type="file" name="file" id="inputUploadDir" webkitdirectory="" hidden required v-on:change="uploadDir()">
+    </form>
+</div>
+
+<div class="col-lg-3 col-md-12 col-sm-6">
+    <table>
+        <tr>
+            <td><b-icon icon="hdd-fill" size="lg"></b-icon></td>
+            <td>{{ fileSystem.getDiskUsage() }} <b-progress variant="success" :max="fileSystem.diskUsage.total" height="8px"
+                    :value="fileSystem.diskUsage.used"></b-progress>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div class="col-lg-2 col-md-12 col-sm-6">
+    <b-checkbox v-model="fileSystem.showAll" name="checkbox-1" v-on:change="refreshChildren()">
+         {{I18N.t('displayHide')}}
+    </b-checkbox>
+</div>
+
+<!-- Modal new Dir -->
+<b-modal id="modal-newdir" :title="I18N.t('newDir')">
+    <b-form-input :state="newDir.validate" v-model="newDir.name" :placeholder="I18N.t('pleaseInputFileName')" v-on:input="checkIsDirInvalid()"></b-form-input>
+    <b-icon variant='info' icon='exclamation-circle-fill'></b-icon> {{I18N.t('createDirsTips')}}
+    <template #modal-footer>
+        <b-button block variant="primary" v-on:click="createDir()">{{I18N.t('createNewDir')}}</b-button>
+    </template>
+</b-modal>

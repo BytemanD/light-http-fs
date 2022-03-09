@@ -91,3 +91,16 @@ def stream_generator(remote_node, abs_path):
             if not data:
                 break
             yield data
+
+
+def human_size(size):
+    if size is None:
+        return size
+    if size >= constants.Unit.GB.value:
+        return f'{size / constants.Unit.GB.value:.2f} GB'
+    elif size >= constants.Unit.MB.value:
+        return f'{size / constants.Unit.MB.value:.2f} MB'
+    elif size >= constants.Unit.KB.value:
+        return f'{size / constants.Unit.KB.value:.2f} KB'
+    else:
+        return f'{size:.2f}  B'

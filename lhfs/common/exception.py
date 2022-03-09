@@ -19,3 +19,7 @@ class NodeNotExists(exceptions.BaseException):
 
 class NodeInactive(exceptions.BaseException):
     _msg = 'Node {node} is inactive'
+
+
+class ConflictNode(exceptions.BaseException):
+    _msg = 'Node {node} is conflict with {exists}'

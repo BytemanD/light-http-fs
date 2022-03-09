@@ -14,7 +14,7 @@ const MESSAGES = {
         scanUsePhoneBrower: 'Please use the mobile browser to scan',
         search: 'search',
         uploadFiles: 'upload files',
-        uploadDir: 'upload directory',
+        uploadDir: 'upload folder',
         newFile: 'create file',
         newDir: 'create dirctory',
         delete: 'delete',
@@ -23,10 +23,11 @@ const MESSAGES = {
         displayQRCode: 'Display QR code ',
         download: 'download',
         file: 'file',
+        fileName: 'file name',
         size: 'size',
         modifyTime: 'modify time',
         operation: 'operation',
-        displayAll: 'display all ',
+        displayHide: 'display hide',
         root: 'roog',
         back: 'back',
         refresh: 'refresh',
@@ -75,6 +76,8 @@ const MESSAGES = {
         projectUrl: 'The url of project',
         node: 'node',
         cleanupUploadCompleted: 'cleanup completed',
+        zip: 'zip',
+        showVerboseMessages: 'show verbose messages',
     },
     'zh-CN': {
         ok: '确定',
@@ -100,10 +103,11 @@ const MESSAGES = {
         displayQRCode: '显示二维码',
         download: '下载',
         file: '文件',
+        fileName: '文件名',
         size: '大小',
         modifyTime: '修改时间',
         operation: '操作',
-        displayAll: '显示全部',
+        displayHide: '显示隐藏文件',
         root: '根目录',
         back: '返回',
         refresh: '刷新',
@@ -151,7 +155,9 @@ const MESSAGES = {
         auth: '作者',
         projectUrl: '项目地址',
         node: '节点',
-        cleanupUploadCompleted: '清理已完成'
+        cleanupUploadCompleted: '清理已完成',
+        zip: '压缩',
+        showVerboseMessages: '显示更多消息',
     },
 };
 
@@ -161,23 +167,12 @@ const I18N = new VueI18n({
 })
 
 function getUserSettedLang() {
-    const cookies = document.cookie.split(';');
-    for (let index = 0; index < cookies.length; index++) {
-        const config = cookies[index].split('=');
-        if (config[0].trim() == 'language') {
-            return config[1].trim();
-        }
-    }
-    return null;
-}
-
-function getDispalyLang() {
-    return I18N.locale;
+    return $cookies.get('language');
 }
 
 function setDisplayLang(language) {
     if(language){
          I18N.locale = language;
-         document.cookie = `language=${language}`;
+         $cookies.set('language', language);
     };
 }

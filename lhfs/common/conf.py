@@ -24,6 +24,10 @@ lhfs_options = [
     cfg.Option('master_rpc', default='http://{my_ip}:{rpc_port}'),
 ]
 
+web_options = {
+    cfg.BooleanOption('use_static_cdn', default=False),
+}
+
 
 def load_configs():
     for file in ['/etc/lhfs/lhfs.conf', './etc/lhfs.conf']:
@@ -35,3 +39,4 @@ def load_configs():
 
 CONF.register_opts(default_options)
 CONF.register_opts(lhfs_options, group='lhfs')
+CONF.register_opts(web_options, group='web')

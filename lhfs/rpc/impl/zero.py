@@ -1,9 +1,7 @@
-from xmlrpc import client
-from xmlrpc.server import SimpleXMLRPCServer
+import zerorpc
 
 from lhfs.rpc import base
 
-import zerorpc
 
 class ZeroRpcServer(base.BaseRpcServer):
 
@@ -21,4 +19,4 @@ class ZeroRpcServer(base.BaseRpcServer):
 class ZeroRpcClient(base.BaseRpcClient):
 
     def init_client(self):
-        return client.ServerProxy(self.endpoint)
+        return zerorpc.Client(self.transport)

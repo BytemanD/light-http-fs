@@ -1,19 +1,101 @@
 import os
 import stat
-import mimetypes
 import socket
+import mimetypes
+import dataclasses
 
 from easy2use import fs
 
 from easy2use import date
 from easy2use.common import log
 from lhfs.common import exception
+from lhfs.common import utils
 
 LOG = log.getLogger(__name__)
 
-ONE_KB = 1024
-ONE_MB = ONE_KB * 1024
-ONE_GB = ONE_MB * 1024
+
+class BaseDataClass:
+
+    @classmethod
+    def from_dict(cls, dict_obj):
+        return cls(**dict_obj)
+
+    def to_dict(self, human=False):
+        dict_obj = dataclasses.asdict(self)
+        if human:
+            for k in dict_obj:
+                if not hasattr(self, f'_human_{k}'):
+                    continue
+                dict_obj[k] = getattr(self, f'_human_{k}')()
+        return dict_obj
+
+
+@dataclasses.dataclass
+class DirItem:
+    name: str = None
+    size: int = None
+    folder: bool = False
+    mtime: float = None
+    editable: bool = False
+    type: str = None
+    pardir: str = None
+
+    def __post_init__(self):
+        self.type = os.path.splitext(self.name)[1][1:]
+
+    def _human_size(self):
+        return utils.human_size(self.size)
+
+    def _human_mtime(self):
+        if not self.mtime:
+            return self.mtime
+        from easy2use import date
+        return date.parse_timestamp2str(self.mtime, '%Y/%m/%d %H:%M')
+
+    def to_dict(self, human=False):
+        dict_obj = dataclasses.asdict(self)
+        if human:
+            for k in dict_obj:
+                if not hasattr(self, f'_human_{k}'):
+                    continue
+                dict_obj[k] = getattr(self, f'_human_{k}')()
+        return dict_obj
+
+    @classmethod
+    def from_dict(cls, dict_obj):
+        return cls(**dict_obj)
+
+
+@dataclasses.dataclass
+class DiskUsageKB(BaseDataClass):
+    total: int = 0
+    used: int = 0
+    free: int = 0
+    percent: float = 0
+
+    def _human_total(self):
+        return utils.human_size(self.total * 1024)
+
+    def _human_used(self):
+        return utils.human_size(self.used * 1024)
+
+    def _human_free(self):
+        return utils.human_size(self.free * 1024)
+
+    def _human_percent(self):
+        return f'{self.percent} %'
+
+
+@dataclasses.dataclass
+class Node(BaseDataClass):
+    type: str = None
+    hostname: str = socket.gethostname()
+    ip: str = socket.gethostbyname(socket.gethostname())
+    transport: str = None
+    ssh_user: str = None
+    ssh_password: str = None
+    heartbeat: str = None
+    status: str = None
 
 
 class LogicPath(object):
@@ -60,24 +142,11 @@ class LogicPath(object):
 
     def size(self, human=False):
         pathstat = self.stat()
-        if not human:
-            return pathstat.st_size
-        if pathstat.st_size >= ONE_GB:
-            return '{:.2f} GB'.format(pathstat.st_size / ONE_GB)
-        elif pathstat.st_size >= ONE_MB:
-            return '{:.2f} MB'.format(pathstat.st_size / ONE_MB)
-        elif pathstat.st_size >= ONE_KB:
-            return '{:.2f} KB'.format(pathstat.st_size / ONE_KB)
-        else:
-            return '{:.2f} B'.format(pathstat.st_size)
+        return human and utils.human_size(pathstat.st_size) or pathstat.st_size
 
     def dict_info(self):
-        return {
-            'name': os.path.basename(self.logic),
-            'size': self.size(human=True),
-            'modify_time': self.modify_time(),
-            'type': 'folder' if self.is_dir() else 'file',
-        }
+        return DirItem(os.path.basename(self.logic), self.size(),
+                       self.is_dir(), self.stat().st_atime)
 
     def modify_time(self):
         pathstat = self.stat()
@@ -141,9 +210,9 @@ class LogicPath(object):
             if not show_all and child.startswith('.'):
                 continue
             path_dict = child_lp.dict_info()
-            path_dict['editable'] = child_lp.editable()
+            path_dict.editable = child_lp.editable()
             dirs.append(path_dict)
-        return sorted(dirs, key=lambda k: k['type'], reverse=True)
+        return dirs
 
     def save(self, fo):
         LOG.debug('fo %s', fo)
@@ -155,33 +224,3 @@ class LogicPath(object):
         if not os.path.exists(parent_path):
             LOG.debug('makedirs %s', parent_path)
             os.makedirs(parent_path)
-
-
-class Node(object):
-    dict_attrs = ['hostname', 'type', 'transport', 'ip',
-                  'ssh_user', 'ssh_password',]
-
-    def __init__(self, node_type, hostname=None, transport=None,
-                 ip=None, ssh_user='root', ssh_password=None):
-        self.hostname = hostname or socket.gethostname()
-        self.type = node_type
-        self.transport = transport
-        self.ip = ip or socket.gethostbyname(self.hostname)
-        self.ssh_user = ssh_user
-        self.ssh_password = ssh_password
-
-    def to_dict(self):
-        return {attr: getattr(self, attr) for attr in self.dict_attrs}
-
-
-class DiskUsage(object):
-    dict_attrs = ['total', 'used', 'free', 'percent']
-
-    def __init__(self, usage):
-        self._usage = usage
-
-    def to_dict(self):
-        data = {attr: getattr(
-            self._usage, attr) / 1024 for attr in self.dict_attrs[:-1]}
-        data[self.dict_attrs[-1]] = getattr(self._usage, self.dict_attrs[-1])
-        return data

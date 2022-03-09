@@ -2,6 +2,8 @@ import abc
 
 import gevent
 
+from lhfs.fs import objects
+
 
 class BaseRpcServer(object):
 
@@ -28,7 +30,7 @@ class BaseRpcServer(object):
         pass
 
 
-class  BaseRpcClient(object):
+class BaseRpcClient(object):
 
     def __init__(self, transport):
         self.transport = transport
@@ -38,11 +40,17 @@ class  BaseRpcClient(object):
     def init_client(self):
         pass
 
-    def get_nodes(self, host):
-        return self.client.get_nodes(host)
+    def list_nodes(self):
+        node_list = self.client.list_nodes()
+        return [objects.Node.from_dict(node_dict) for node_dict in node_list]
+
+    def get_node(self, hostname):
+        node_dict = self.client.get_node(hostname)
+        return node_dict and objects.Node.from_dict(node_dict) or None
 
     def ls(self, path, show_all=False):
-        return self.client.ls(path, show_all)
+        items = self.client.ls(path, show_all)
+        return [objects.DirItem.from_dict(item) for item in items]
 
     def mkdir(self, path):
         return self.client.mkdir(path)
@@ -54,7 +62,7 @@ class  BaseRpcClient(object):
         return self.client.rename(path, new_name)
 
     def disk_usage(self):
-        return self.client.disk_usage()
+        return objects.DiskUsageKB.from_dict(self.client.disk_usage())
 
     def node_update(self, node):
         return self.client.node_update(node)

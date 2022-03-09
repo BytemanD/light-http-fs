@@ -1,76 +1,69 @@
 //use custom bootstrap styling
 import {LHFSClient} from './lhfsclient.js'
+// import {hljs} from 'https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.0/build/highlight.min.js';
 
 new Vue({
     el: '#app',
     data: {
         settingItems: [
             new SettingItem('range', 'pbarHeight', 5, {min:1, max:10, unit: 'px', description: 'pbrHeight'}),
-            new SettingItem('switch', 'showDelDirSuccess', false, {description: 'showDelDirSuccess'}),
+            new SettingItem('switch', 'verboseMessage', false, {description: 'showVerboseMessages'}),
             new SettingItem('range', 'nodesRefreshInterval', 10, {min:1, max:60, description: 'nodesRefreshInterval'}),
         ],
         // conf is a mapping parsed from settingItems
         conf: {},
-        children: [],
         downloadFile: { name: '', qrcode: '' },
-        showAll: false,
         fsClient: new LHFSClient(),
         renameItem: { name: '', newName: '' },
         newDir: { name: '', validate: null },
-        fileEditor: { name: '', content: '' },
+        fileEditor: { name: '', content: '', mode: 'text' },
         uploadQueue: { completed: 0, tasks: [] },
         debug: false,
-        pathItems: [],
-        diskUsage: { used: 0, total: 100 },
         searchPartern: '',
         searchResult: [],
         showPardir: false,
-        currentDirList: [],
         log: null,
         searchHistory: [],
-        selected: {all: false, indeterminate: false, items: []},
         nodes: [],
         nodes_info: {null: {status: 'xx'}},
         context: {node: null},
         inited: false,
+        fileSystem: new FileSystem(new LHFSClient()),
     },
     methods: {
         refreshChildren: function () {
             this.log.debug('更新目录');
             let node = this.nodes_info[this.context.node];
-            if (node.status !=':)' ){
-                this.children = []
-                this.log.warn(`node ${this.fsClient.context.node} is not inactive`)
+            if (node.status !='active' ){
+                this.log.warn(`node ${this.fsClient.context.node} is not active`)
+                this.fileSystem.pathItems = [];
+                this.fileSystem.pathList = [];
                 return;
+            } else {
+                this.fileSystem.refreshItems()
             }
-            this.goTo(this.pathItems.length - 1);
         },
         clickPath: function (child) {
-            if (child.type != "folder") { return }
+            if (!child.folder) { return }
             var self = this;
             let dirPath = ''
             if (child.pardir){
                 dirPath = `${child.pardir}/${child.name}`;
             } else {
-                dirPath = self.getPathText(self.pathItems).concat(child.name).join('/');
+                dirPath = self.fileSystem.pathList.concat(child.name).join('/');
             }
-            this.fsClient.ls(
-                dirPath, self.showAll
-            ).then(success => {
+            self.fsClient.ls(dirPath, self.fileSystem.showAll).then(success => {
                 if (child.pardir) {
-                    // TODO delete currentDirList use pathItems
-                    this.pathItems = [];
-                    this.currentDirList = [];
+                    self.fileSystem.pathItems = [];
                     child.pardir.slice(1).split('/').forEach(item => {
-                        this.pathItems.push({text: item, href: '#'});
-                        self.currentDirList.push(item)
+                        self.fileSystem.pathItems.push(item);
                     })
-                    console.log(self.currentDirList)
                 }
-                self.currentDirList.push(child.name);
-                self.pathItems.push({ text: child.name, href: '#' })
-                self.children = success.data.dir.children;
-                self.diskUsage = success.data.dir.disk_usage;
+                self.fileSystem.pathList.push(child.name);
+                self.fileSystem.pathItems = success.data.dir.children;
+                self.fileSystem.diskUsage = success.data.dir.disk_usage;
+                self.fileSystem.selected.items = [];
+                self.toggleSelected()
             }).catch(error => {
                 self.log.error(`请求失败，${error}`);
             });
@@ -81,29 +74,20 @@ new Vue({
             return pathText;
         },
         getDirPath: function (dirItems) {return dirItems.join('/')},
-        getCurrentPath: function () { return this.getDirPath(this.pathItems) },
-        getFSPath: function (dirName) { return this.getDirPath(this.currentDirList.concat(dirName)) },
-        getFSUrl: function (dirItem) {
-            this.fsClient.getFsUrl(
-                dirItem.pardir ? `${dirItem.pardir}/${dirItem.name}` : this.getFSPath(dirItem.name)
-            )
+        getFSPath: function (dirName) {
+             return this.getDirPath(this.fileSystem.pathList.concat(dirName)) 
         },
-        getDownloadUrl: function (dirItem) {
-            return this.fsClient.getDownloadUrl(
-                dirItem.pardir ? `${dirItem.pardir}/${dirItem.name}` : this.getFSPath(dirItem.name)
-            );
-        },
-        goTo: function (clickIndex) {
+
+        goTo: function (clickIndex=-1) {
             var self = this;
             self.showPardir = false;
-            let pathItems = self.getPathText(getItemsBefore(self.pathItems, clickIndex));
-            this.fsClient.ls(
-                pathItems.join('/'), self.showAll
-            ).then(success => {
-                delItemsAfter(self.currentDirList, clickIndex);
-                delItemsAfter(self.pathItems, clickIndex);
-                self.children = success.data.dir.children;
-                self.diskUsage = success.data.dir.disk_usage;
+            let newPathList = this.fileSystem.pathList.slice(0, clickIndex + 1);
+            this.fsClient.ls(`/${newPathList.join('/')}`, self.fileSystem.showAll).then(success => {
+                self.fileSystem.pathList = self.fileSystem.pathList.slice(0, clickIndex + 1);
+                self.fileSystem.pathItems = success.data.dir.children;
+                self.fileSystem.diskUsage = success.data.dir.disk_usage;
+                self.fileSystem.selected.items = [];
+                self.toggleSelected()
             }).catch(error => {
                 self.log.error(`请求失败，${error}`);
             });
@@ -120,44 +104,46 @@ new Vue({
             }
             this.showQrcode('fileQrcode', this.fsClient.getFSLink(filePath))
         },
-        makeSureDelete: function (item) {
-            this.makeSureDeleteItems([item])
-        },
         makeSureDeleteItems: function (items) {
             var self = this;
             var files = []
+            let parDir = self.fileSystem.pathList.join('/');
             items.forEach(item => {
-                files.push(item.name)
+                let dirPath;
+                if (item.pardir){
+                    dirPath = `${item.pardir}/${item.name}`
+                } else {
+                    dirPath = `${parDir}/${item.name}`;
+                }
+                files.push(dirPath);
             });
-            this.$bvModal.msgBoxConfirm(this.$createElement('div', { domProps: { innerHTML: files.join('<br/>') }}),{
-                title: I18N.t('makeSureDelete'), okVariant: 'danger',
-            }).then(value => {
+            this.$bvModal.msgBoxConfirm(
+                this.$createElement('div', {domProps: { innerHTML: files.join('<br/>') }}),
+                {title: I18N.t('makeSureDelete'), okVariant: 'danger'}
+            ).then(value => {
                 if (value == true) {
-                    items.forEach(item => {
-                        self.deleteDir(item);
+                    files.forEach(file => {
+                        self.deleteDir(file);
                     });
-                    this.selected.items = [];
-                    this.selected.all = false;
-                    this.selected.indeterminate = false;
+                    this.fileSystem.selected.items = [];
+                    this.fileSystem.selected.all = false;
+                    this.fileSystem.selected.indeterminate = false;
                 }
             });
         },
-        deleteDir: function (item) {
+        deleteDir: function (dirPath) {
             var self = this;
-            this.fsClient.rm(
-                this.getPathText(self.pathItems).concat([item.name]).join('/'), true,
-            ).then(successs => {
-                if (self.conf.showDelDirSuccess.current){
+            this.fileSystem.deleteDir(dirPath).then(successs => {
+                if (self.conf.verboseMessage.current){
                     self.log.info(I18N.t('deleteSuccess'));
                 }
-                self.refreshChildren();
             }).catch(error => {
                 self.log.error(`${I18N.t('deleteFailed')}, ${error}`);
             });
         },
         deleteSeleted: function(){
             var deleteItems = []
-            this.selected.items.forEach(item => {
+            this.fileSystem.selected.items.forEach(item => {
                 if(item){
                     deleteItems.push(item);
                 }
@@ -168,31 +154,30 @@ new Vue({
         },
         toggleAll: function(selectAll){
             if (selectAll == true){
-                this.selected.items = this.children.slice();
-                this.selected.indeterminate = false;
+                this.fileSystem.selected.items = this.fileSystem.pathItems.slice();
+                this.fileSystem.selected.indeterminate = false;
             } else {
-                this.selected.items = [];
-                this.selected.indeterminate = false;
+                this.fileSystem.selected.items = [];
+                this.fileSystem.selected.indeterminate = false;
             }
         },
         toggleSelected: function(selectedItem){
             var selectedNum = 0
-            this.selected.items.forEach(item => {
+            this.fileSystem.selected.items.forEach(item => {
                 if(item){ selectedNum += 1; }
             })
             if (selectedNum === 0){
-                this.selected.indeterminate = false;
-                this.selected.all = false;
-            } else if (selectedNum >= this.children.length) {
-                this.selected.indeterminate = false;
-                this.selected.all = true;
+                this.fileSystem.selected.indeterminate = false;
+                this.fileSystem.selected.all = false;
+            } else if (selectedNum >= this.fileSystem.pathItems.length) {
+                this.fileSystem.selected.indeterminate = false;
+                this.fileSystem.selected.all = true;
             } else {
-                this.selected.indeterminate = true;
-                this.selected.all = false;
+                this.fileSystem.selected.indeterminate = true;
+                this.fileSystem.selected.all = false;
             }
         },
         toggleShowAll: function () {
-            this.showAll = ! this.showAll;
             this.refreshChildren();
         },
         renameDir: function () {
@@ -214,6 +199,15 @@ new Vue({
                 self.log.error(`${I18N.t('renameFailed')}, ${error_data.error}`, 5000)
             });
         },
+        renameItem: function(item, newName){
+            this.fsClient.rename(self.getFSPath(item.name), newName).then(success => {
+                self.log.info(I18N.t('renameSuccess'));
+                self.refreshChildren();
+            }).catch(error => {
+                let error_data = error.response.data;
+                self.log.error(`${I18N.t('renameFailed')}, ${error_data.error}`, 5000)
+            });
+        },
         showRenameModal: function (item) {
             this.renameItem = { name: item.name, newName: item.name }
         },
@@ -228,7 +222,7 @@ new Vue({
                 return;
             }
             var self = this;
-            let newDir = self.getDirPath(self.currentDirList.concat(self.newDir.name));
+            let newDir = self.getDirPath(self.fileSystem.pathList.concat(self.newDir.name));
             self.fsClient.mkdir(newDir).then(success => {
                 self.log.info(I18N.t('createDirSuccess'));
                 self.refreshChildren();
@@ -236,10 +230,6 @@ new Vue({
                 let error_data = error.response.data;
                 self.log.error(`${I18N.t('createDirFailed')}, ${error_data.error}`, 5000)
             });
-        },
-        changeNode: function(){
-            this.refreshChildren()
-            // this.fsClient.setContext(this.context);
         },
         uploadFiles: function (files) {
             var self = this;
@@ -250,7 +240,7 @@ new Vue({
                 let progress = { file: file.name, loaded: 0, total: 100, status: 'waiting', target: this.context.node };
                 self.uploadQueue.tasks.push(progress);
                 self.fsClient.upload(
-                    self.getPathText(self.pathItems).join('/'), file,
+                    self.getPathText(self.fileSystem.pathList).join('/'), file,
                     uploadEvent => {
                         progress.loaded = uploadEvent.loaded;
                         progress.total = uploadEvent.total;
@@ -276,38 +266,44 @@ new Vue({
         showFileModal: function (item) {
             this.fileEditor.name = item.name;
             var self = this;
+            console.debug(this.fileSystem.pathList);
+            console.debug(item.name);
             self.fsClient.cat(
                 self.getFSPath(item.name)
             ).then(success => {
-                self.fileEditor.content = success.data;
+                if (['html', 'css', 'js', 'py', 'java', 'php'].indexOf(item.type.toLocaleLowerCase()) >= 0){
+                    // use highlight js to parse code
+                    self.fileEditor.mode = 'code';
+                    let hljsResult = hljs.highlight(success.data, {language: item.type});
+                    console.debug(hljsResult);
+                    self.fileEditor.content = hljs.highlight(success.data, {language: item.type}).value;
+
+                } else {
+                    switch (item.type.toLocaleLowerCase()) {
+                        case 'md':
+                            // parse markdown to html
+                            self.fileEditor.mode = 'html';
+                            self.fileEditor.content = marked.parse(success.data);
+                            break;
+                        default:
+                            self.fileEditor.mode = 'text';
+                            self.fileEditor.content = success.data;
+                            break;
+                    }
+                }
             }).catch(error => {
                 let msg = `${I18N.t('getfileContentFailed')}, ${error}`;
                 self.log.error(msg, 5000);
             })
         },
+        isEditable: function(item){
+            if (item.editable){
+                return true;
+            }
+            return ['md', 'text', 'html', 'css', 'js', 'py', 'java', 'php'].indexOf(item.type.toLocaleLowerCase()) >= 0;
+        },
         updateFile: function () {
             this.log.error('文件修改功能未实现');
-        },
-        getDiskUsage: function () {
-            let ONE_MB = 1024;
-            let ONE_GB = ONE_MB * 1024;
-            let displayUsed = this.diskUsage.used;
-            let displayTotal = this.diskUsage.total;
-            let unit = 'B'
-            if (this.diskUsage.total >= ONE_GB) {
-                displayUsed = this.diskUsage.used / ONE_GB;
-                displayTotal = this.diskUsage.total / ONE_GB;
-                unit = 'GB';
-            } else if (this.diskUsage.total >= ONE_MB) {
-                displayUsed = this.diskUsage.used / ONE_MB;
-                displayTotal = this.diskUsage.total / ONE_MB;
-                unit = 'MB';
-            } else {
-                displayUsed = this.diskUsage.used;
-                displayTotal = this.diskUsage.total;
-                unit = 'KB';
-            }
-            return `${displayUsed.toFixed(2)}${unit}/${displayTotal.toFixed(2)}${unit}`;
         },
         refreshSearchHistory: function () {
             var self = this;
@@ -323,14 +319,14 @@ new Vue({
             self.showPardir = true;
             self.searchResult = [];
             this.fsClient.find(this.searchPartern).then(success => {
-                self.children = success.data.search.dirs;
+                self.fileSystem.dirList = [];
+                self.fileSystem.pathItems = success.data.search.dirs;
             }).catch(error => {
                 self.log.error(`${I18N.t('searchFailed')}, ${error.status}`, 5000)
             });
         },
         showQrcode: function (elemId, text) {
             // chinese is not support for qrcode.js now
-            console.debug(`make code: ${text}`)
             var qrcode = new QRCode(elemId);
             qrcode.makeCode(text);
         },
@@ -348,7 +344,7 @@ new Vue({
         refreshDir: function () {
             var self = this;
             this.fsClient.ls(
-                this.currentDirList.join('/'), self.showAll
+                this.fileSystem.pathList.join('/'), self.fileSystem.showAll
             ).then(success => {
                 self.children = success.data.dir.children;
                 self.diskUsage = success.data.dir.disk_usage;
@@ -366,7 +362,7 @@ new Vue({
         },
         refreshNodes: function(callback=null){
             var self = this;
-            this.fsClient.getNodes().then(success =>{
+            this.fsClient.listNodes().then(success =>{
                 let nodes = [];
                 success.data.nodes.forEach(item => {
                     if (self.context.node == null && item.type == 'master'){
@@ -390,7 +386,28 @@ new Vue({
                 this.uploadQueue.tasks = tasks;
                 this.uploadQueue.completed = 0;
             })
-        }
+        },
+        zipDirectory: function(item){
+            console.log(this.fileSystem.pathList)
+            let zipPath = `${this.fileSystem.pathList.join('/')}/${item.name}`;
+            if(! zipPath.startsWith('/')){
+                zipPath = '/'  + zipPath;
+            }
+            let self = this;
+            this.fsClient.zipDirectory(zipPath).then(data => {
+                self.refreshChildren()
+            })
+        },
+        downloadItem: function(item){
+            let link = document.createElement('a');
+            link.href = this.fileSystem.getDownloadUrl(item);;
+            link.download = item.name;
+            link.click()
+        },
+        changeDisplayMode: function(mode){
+            this.fileSystem.setDisplayMode(mode);
+            this.$cookies.set('displayMode', mode);
+        },
     },
     created: function () {
         var self = this;
@@ -398,15 +415,19 @@ new Vue({
             self.conf[item.name] = item;
         });
         this.fsClient.context = this.context;
+        this.fileSystem.setContext(this.context);
         this.refreshNodes(data => {
-            self.goTo(-1);
+            self.goTo();
             self.inited = true;
         });
-        setInterval(function(){if (self.inited){ self.refreshNodes(); }},
-                    self.conf.nodesRefreshInterval.current * 1000);
+        setInterval(function(){
+            if (self.inited){
+                self.refreshNodes();
+            }
+        }, self.conf.nodesRefreshInterval.current * 1000);
         setDisplayLang(getUserSettedLang() || navigator.language);
+        this.changeDisplayMode(this.$cookies.get('displayMode') || 'table');
         this.log = new LoggerWithBVToast(this.$bvToast, false)
         this.log.debug('vue app created');
-        // this.goTo(-1);
     },
 });

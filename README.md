@@ -13,28 +13,39 @@
 
 git clone后，执行如命令安装
 
+    cd light-http-fs
+    python setup.py install
+
+*使用本地CDN（可选）*
+
+1. 下载CDN库
 ```bash
-cd light-http-fs
-python setup.py install
+python lhfs/cmd/cli.py collect-static lhfs/templates/requires.html -s lhfs/static/cdn/
 ```
+
+2. 修改配置
+```ini
+[web]
+use_static_cdn = true
+```
+
 > 启动master节点
 
-```bash
-lhfsd
-```
+    lhfsd
+
 
 > 启动slave节点
 
 修改配置，设置master节点的rpc地址：
-```ini
-[lhfs]
-master_rpc = tcp://<MASTER HOST>:9527
-```
+
+    [lhfs]
+    master_rpc = tcp://<MASTER HOST>:9527
+
 
 启动 slave 节点: 
-```bash
-lhfsd --slave --ssh-user <root> --ssh-password <ROOT_PASSWORD>
-```
+
+    lhfsd --slave --ssh-user <root> --ssh-password <ROOT_PASSWORD>
+
 *备注：ssh-user 和 ssh-password 用于节点间文件传输*
 ## TODO
 

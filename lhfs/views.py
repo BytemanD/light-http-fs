@@ -15,7 +15,9 @@ from easy2use.pysshpass import ssh
 from lhfs import auth
 from lhfs.fs import manager
 from lhfs.common import utils
+from lhfs.common import conf
 
+CONF = conf.CONF
 LOG = log.getLogger(__name__)
 
 NODE_MANAGER = None
@@ -62,6 +64,9 @@ def set_auth_manager(password):
 def get_resp_context():
     context = copy.deepcopy(DEFAULT_CONTEXT)
     context.update({'username': session.get('username', 'guest')})
+    context.update({
+        'STATIC_URL': '/static',
+        'STATIC_CDN': CONF.web.use_static_cdn and '/static/cdn' or None})
     return context
 
 
@@ -74,32 +79,38 @@ class HomeView(views.MethodView):
 class IndexView(views.MethodView):
 
     def get(self):
-        return flask.render_template('index.html', **get_resp_context())
+        return flask.render_template('index.html',
+                                     **get_resp_context())
 
 
 class FaviconView(views.MethodView):
 
     def get(self):
         return flask.send_from_directory(
-            os.path.join(current_app.static_folder, 'icon'), 'lhfs.svg')
+            os.path.join(current_app.static_folder,
+                         'icon'), 'icon-black-circle.svg')
 
 
 class FSViewV1(views.MethodView):
 
     @ensure_node_exists
     def get(self, node, dir_path):
-        show_all = utils.get_reqeust_arg(flask.request, 'showAll')
+        show_all = utils.get_reqeust_arg(flask.request, 'showAll',
+                                         default=False)
+        sort = utils.get_reqeust_arg(flask.request, 'sort', default=False)
         try:
-            children = NODE_MANAGER.ls(dir_path, show_all=show_all, host=node)
+            items = NODE_MANAGER.ls(dir_path, show_all=show_all, host=node)
+            if sort:
+                items.sort(key=lambda i: (i.folder, i.name), reverse=True)
             usage = NODE_MANAGER.disk_usage()
         except Exception as e:
             LOG.exception(e)
-            return json_response({'error': str(e)}, status=400)
-        return json_response({
-            'dir': {'path': dir_path,
-                    'children': children,
-                    'disk_usage': {'total': usage.get('total'),
-                                   'used': usage.get('used')}}
+            return str(e), 400
+
+        return flask.jsonify({'dir': {
+            'path': dir_path,
+            'children': [item.to_dict(human=True) for item in items],
+            'disk_usage': {'total': usage.total, 'used': usage.used}}
         })
 
     @ensure_node_exists
@@ -145,11 +156,12 @@ class FileViewV1(views.MethodView):
 
     @ensure_node_exists
     def get(self, node, dir_path):
-        LOG.debug('get file from %s %s',node, dir_path)
+        LOG.debug('get file from %s %s', node, dir_path)
         abs_path = NODE_MANAGER.get_abs_path(dir_path, host=node)
         if node == NODE_MANAGER.node.hostname:
             if not NODE_MANAGER.is_file(dir_path):
-                return json_response({'error': 'path is not a file'}, status=400)
+                return json_response({'error': 'path is not a file'},
+                                     status=400)
             directory = os.path.dirname(abs_path)
             send_file = os.path.basename(abs_path)
             return flask.send_from_directory(directory, send_file,
@@ -200,6 +212,7 @@ class SearchViewV1(views.MethodView):
         if not partern:
             return json_response({'error': 'partern is none'}, status=400)
         matched_pathes = NODE_MANAGER.find(partern, host=node)
+
         return json_response({'search': {'dirs': matched_pathes}})
 
 
@@ -209,7 +222,7 @@ class AuthView(views.MethodView):
         data = flask.request.data
         if not data:
             return json_response({'error': 'auth info not found'},
-                                     status=400)
+                                 status=400)
         auth = json.loads(data).get('auth', {})
         LOG.debug('auth with: %s', auth)
         if AUTH_CONTROLLER.is_valid(auth.get('username'),
@@ -234,7 +247,33 @@ class AuthView(views.MethodView):
 class NodesView(views.MethodView):
 
     def get(self):
-        nodes = NODE_MANAGER.get_nodes(None)
-        # NOTE For python3, the type of nodes will be dict_values,
-        # so it must be parse to list by list()
-        return json_response({'nodes': list(nodes)}, status=200)
+        nodes = NODE_MANAGER.list_nodes()
+        return {'nodes': [node.to_dict() for node in nodes]}
+
+
+class NodeView(views.MethodView):
+
+    def get(self, hostname):
+        node = NODE_MANAGER.get_node(hostname)
+        return {'node': node.to_dict()}
+
+
+class FsActionView(views.MethodView):
+
+    def post(self):
+        data = json.loads(flask.request.data)
+        action_name = list(data.keys())[0]
+        # import pdb
+        # pdb.set_trace()
+        if action_name == 'doZip':
+            self.do_zip(data.get('doZip'))
+        return {action_name: {}}
+
+    def do_zip(self, params):
+        path = params.get('path')
+        if not path:
+            return {'error': 'path is none'}, 400
+
+        path = params.get('path')
+        zip_name = NODE_MANAGER.zip_path(path)
+        LOG.debug('zip name is : %s', zip_name)

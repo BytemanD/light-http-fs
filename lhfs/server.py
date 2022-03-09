@@ -1,9 +1,7 @@
-import importlib
-
 import os
+
 import flask
 from flask import session
-import gevent
 from werkzeug.routing import BaseConverter
 
 from easy2use.common import log
@@ -39,6 +37,8 @@ class LightHttpFS(httpserver.WsgiServer):
             views.FSViewV1.as_view('v1_fs')),
         (r'/v1/search/<node>', views.SearchViewV1.as_view('v1_search')),
         (r'/nodes', views.NodesView.as_view('nodes')),
+        (r'/nodes/<hostname>', views.NodeView.as_view('node')),
+        (r'/action', views.FsActionView.as_view('action')),
     ]
 
     def __init__(self, host=None, port=80, fs_root=None, password=None):
