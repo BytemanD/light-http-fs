@@ -84,13 +84,13 @@ class LightHttpFS(object):
         app = web.Application(self.RULES, debug=develop,
                               template_path=self.template_folder,
                               static_path=self.static_folder)
-
+        LOG.info('Starting server %s', port or CONF.api.port)
         if develop:
-            app.listen(port or CONF.port, address=host)
+            app.listen(port or CONF.api.port, address=host)
         else:
             server = httpserver.HTTPServer(app)
-            server.bind(port or CONF.port)
-            server.start(num_processes=CONF.workers)
+            server.bind(port or CONF.api.port)
+            server.start(num_processes=CONF.api.port)
 
         ioloop.IOLoop.instance().start()
 

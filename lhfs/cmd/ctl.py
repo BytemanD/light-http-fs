@@ -75,10 +75,8 @@ class Ls(cli.SubCli):
     def __call__(self, args):
         try:
             rpc_master = utils.get_rpc_client(args.master)
-            if not args.host:
-                node = rpc_master.get_master_nodes()
-            else:
-                node = rpc_master.get_node(args.host)
+            node = rpc_master.get_node(args.host) if args.host \
+                else rpc_master.get_master_nodes()
             if not node:
                 raise exception.NodeNotExists(node=args.host)
         except exception.NodeNotExists as e:
@@ -203,7 +201,6 @@ class Serve(cli.SubCli):
             service.start()
         else:
             service = server.LightHttpFS(fs_root=CONF.lhfs.root,
-                                         port=CONF.lhfs.wsgi_port,
                                          password=args.password)
             service.start(develop=args.develop)
 

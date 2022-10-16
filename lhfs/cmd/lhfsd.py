@@ -82,7 +82,6 @@ def main():
         service.start()
     else:
         service = server.LightHttpFS(fs_root=CONF.lhfs.root,
-                                     port=CONF.lhfs.wsgi_port,
                                      password=args.password,
                                      theme=args.theme)
         service.start(develop=DEVELOPMENT)

@@ -22,7 +22,7 @@ class BaseRpcServer(object):
         pass
 
     def start(self, daemon=False):
-        LOG.info('starting xmlrpc server with daemon %s', daemon)
+        LOG.info('starting xmlrpc server with daemon: %s', daemon)
         if daemon:
             gevent.spawn(self._start)
         else:

@@ -2,9 +2,13 @@
     <v-avatar><v-img src="/static/favicon.svg" max-width="28" contain></v-img></v-avatar>
 </v-app-bar-nav-icon>
 <v-toolbar-title>{{ name }}</v-toolbar-title>
-<v-toolbar-title class="my-auto ml-7" style="width: 16%">
+<v-toolbar-title class="my-auto ml-7">
     <v-btn text @click.stop="dialog = true"><v-icon>mdi-qrcode</v-icon>[[ I18N.t('scanLink') ]]</v-btn>
 </v-toolbar-title>
+<v-toolbar-title class="my-auto ml-7" style="width: 16%">
+    <v-select solo-inverted flat hide-details prepend-icon="mdi-server" :items="filesTable.nodes" v-on:change="refreshChildren()" v-model="filesTable.node"></v-select>
+</v-toolbar-title>
+
 <v-spacer></v-spacer>
 <v-text-field v-model="searchPartern" v-on:keyup.enter="search()" prepend-icon="mdi-magnify" hide-details single-line></v-text-field>
 <v-menu offset-y>
