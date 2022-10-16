@@ -1,0 +1,13 @@
+<div class="row">
+    <template v-for="(item, index) in fileSystem.pathItems" v-model="fileSystem.pathItems">
+        <div class="col-lg-2 col-md-3 col-sm-6">
+            <b-form-checkbox :value="item" v-model='fileSystem.selected.items' @change='fileSystem.selectOne(item)'></b-form-checkbox>
+            <div v-on:click="clickPath(item)" style="text-align: center;" >
+                <b-icon font-scale="4" icon="folder-fill" variant="warning" v-if='item.folder'></b-icon>
+                <b-icon :icon="fileSystem.getFileIcon(item)" v-else></b-icon>
+                <br>    
+                [[ item.name ]]<br><br>
+            </div>
+        </div>
+    </template>
+</div>

@@ -1,0 +1,35 @@
+<v-bottom-sheet v-model="settingsDialog.show">
+    <v-sheet height="300px" class="pa-4">
+        <h5 class="text-info">UI</h5>
+        <v-simple-table dense>
+            <template v-slot:default>
+            <thead>
+                <tr>
+                    <th>[[ I18N.t('name') ]]</th>
+                    <th>[[ I18N.t('description') ]]</th>
+                    <th>[[ I18N.t('value') ]]</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="item in settingsDialog.items">
+                    <td>[[ item.name  ]]</td>
+                    <td>[[ I18N.t(item.description) ]]</td>
+                    <td><template v-if="item.type=='range'">
+                            <v-tooltip top>
+                                <template v-slot:activator="{ on, attrs }">
+                                    <v-slider  v-bind="attrs" v-on="on" v-model="item.current" class="align-center" :max="item.max" :min="item.min" hide-details></v-slider>
+                                </template>
+                                [[ item.current ]][[ item.unit ]], [[ I18N.t('range') ]]: [[ item.min ]]~[[ item.max ]]
+                            </v-tooltip>
+                        </template>
+                        <template v-if="item.type=='switch'"><v-switch dense hide-details v-model="item.current" class="ma-2"></v-switch></template>
+                        <template v-if="item.type=='input'"><v-text-field dense hide-details v-model="item.current"></v-text-field></template>
+                    </td>
+                </tr>
+            </tbody>
+            </template>
+        </v-simple-table>
+
+    </v-sheet>
+</v-bottom-sheet>
+

@@ -27,7 +27,7 @@ const MESSAGES = {
         size: 'size',
         modifyTime: 'modify time',
         operation: 'operation',
-        displayHide: 'display hide',
+        displayHide: 'show/hide hidden files',
         root: 'roog',
         back: 'back',
         refresh: 'refresh',
@@ -77,7 +77,9 @@ const MESSAGES = {
         node: 'node',
         cleanupUploadCompleted: 'cleanup completed',
         zip: 'zip',
+        unzip: 'unzip',
         showVerboseMessages: 'show verbose messages',
+        changeDisplay: 'toggle display view',
     },
     'zh-CN': {
         ok: '确定',
@@ -107,7 +109,7 @@ const MESSAGES = {
         size: '大小',
         modifyTime: '修改时间',
         operation: '操作',
-        displayHide: '显示隐藏文件',
+        displayHide: '是否显示隐藏的文件',
         root: '根目录',
         back: '返回',
         refresh: '刷新',
@@ -157,7 +159,9 @@ const MESSAGES = {
         node: '节点',
         cleanupUploadCompleted: '清理已完成',
         zip: '压缩',
+        unzip: '解压',
         showVerboseMessages: '显示更多消息',
+        changeDisplay: '切换视图',
     },
 };
 

@@ -1,13 +1,16 @@
 import os
 import socket
 
-from easy2use.common import cfg
+from easy2use.globals import cfg
 
 CONF = cfg.CONF
 DEFAULT_HOST = socket.gethostname()
 
 default_options = [
     cfg.BooleanOption('debug', default=False),
+    cfg.IntOption('port', default=80),
+    cfg.IntOption('workers', default=None),
+    cfg.Option('log_file', default=None),
     cfg.IntOption('heartbeat_interval', default=10),
     cfg.IntOption('heartbeat_alive', default=60),
 ]
@@ -26,6 +29,8 @@ lhfs_options = [
 
 web_options = {
     cfg.BooleanOption('use_static_cdn', default=False),
+    cfg.Option('theme', default='material'),
+    # 'material', 'bootstrap'
 }
 
 

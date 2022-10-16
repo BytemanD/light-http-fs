@@ -17,7 +17,7 @@ new Vue({
             this.fsclient.auth(
                 self.auth
              ).then( success => {
-                 self.log.error(I18N.t('authSuccess'));
+                 self.log.info(I18N.t('authSuccess'));
                  window.location.reload();
              }).catch(error => {
                  self.log.error(I18N.t('loginFailed'))

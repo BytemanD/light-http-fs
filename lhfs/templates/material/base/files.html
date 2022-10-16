@@ -1,0 +1,13 @@
+<v-col lg="12" sm="12" cols="12">
+    <v-chip text-color="info" label width="100" block style="width: 100%">
+        <v-avatar left><v-icon color="primary" @click="filesTable.goTo(-1)">mdi-home</v-icon></v-avatar>
+        <v-breadcrumbs :items="filesTable.breadcrumbs">
+          <template v-slot:item="{ item }" >
+              <v-breadcrumbs-item :disabled="item.disabled" @click="filesTable.goTo(item)">[[ item.text ]]</v-breadcrumbs-item>
+          </template>
+        </v-breadcrumbs>
+    </v-chip>
+    <template v-if="fileSystem.displayMode=='table'">{% include 'file_views/file_table.html' %}</template>
+    <template v-if="fileSystem.displayMode=='grid'">{% include 'file_views/file_grid.html' %}</template>
+    <template v-if="fileSystem.displayMode=='list'">{% include 'file_views/file_list.html' %}</template>
+</v-col>

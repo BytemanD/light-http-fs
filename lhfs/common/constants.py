@@ -11,10 +11,10 @@ MASTER = 'master'
 SLAVE = 'slave'
 
 RPC_CLASS_MAPPING = {
-    'xmlrpc': ('lhfs.rpc.impl.xml.XMLRpcServer',
-               'lhfs.rpc.impl.xml.XMLRpcClient'),
-    'zerorpc': ('lhfs.rpc.impl.zero.ZeroRpcServer',
-                'lhfs.rpc.impl.zero.ZeroRpcClient')
+    'xmlrpc': ('lhfs.core.rpc.impl.xml.XMLRpcServer',
+               'lhfs.core.rpc.impl.xml.XMLRpcClient'),
+    'zerorpc': ('lhfs.core.rpc.impl.zero.ZeroRpcServer',
+                'lhfs.core.rpc.impl.zero.ZeroRpcClient')
 }
 
 FOLDER = 'folder'

@@ -1,7 +1,3 @@
-from easy2use.common import log
-
-LOG = log.getLogger(__name__)
-
 
 class AuthManager(object):
 
@@ -9,6 +5,4 @@ class AuthManager(object):
         self.admin_password = password
 
     def is_valid(self, username, password):
-        if username == 'admin' and password == self.admin_password:
-            return True
-        return False
+        return username == 'admin' and password == self.admin_password

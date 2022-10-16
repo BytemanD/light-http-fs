@@ -4,14 +4,14 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="shortcut icon" href="/favicon.ico">
         <script type="javascript"></script>
-        {% include "requires.html" %}
+        {% include "base/requires.html" %}
 
     </head>
-    <body style="background-color: cadetblue;">
+    <body background="/static/background/1.svg" class="bg-img-norepeat">
         <div id='app' class="container">
             <div class="row justify-content-md-center" style="margin-top: 20%;">
-                <div class="col-lg-5 col-md-10 col-sm-12 " style="text-align: center;">
-                    <b-card bg-variant="light" :header="I18N.t('accountSignIn')" class="text-center" >
+                <div class="col-lg-5 col-md-10 col-sm-12 text-center">
+                    <b-card bg-variant="light" :header="I18N.t('accountSignIn')">
                         <div class="form-group">
                             <b-form-input :placeholder="I18N.t('pleaseInputUsername')" v-model="auth.username" ></b-form-input>
                         </div>
@@ -19,11 +19,11 @@
                             <b-form-input :placeholder="I18N.t('pleaseInputPassword')" v-model="auth.password" type="password" @keyup.enter.native="login()"></b-form-input>
                         </div>
                         <div class="text-right">
-                            <b-link href="#" v-on:click="changeLanguage('en')">{{I18N.t('en')}}</b-link>/
-                            <b-link href="#" v-on:click="changeLanguage('zh-CN')">{{I18N.t('zh-CN')}}</b-link>
+                            <b-link href="#" v-on:click="changeLanguage('en')">[[ I18N.t('en') ]]</b-link>/
+                            <b-link href="#" v-on:click="changeLanguage('zh-CN')">[[ I18N.t('zh-CN') ]]</b-link>
                         </div>
                         <template #footer>
-                            <b-button block variant="primary" v-on:click="login()">{{I18N.t('signIn')}}</b-button>
+                            <b-button block variant="primary" v-on:click="login()">[[ I18N.t('signIn') ]]</b-button>
                           </template>
                     </b-card>
                 </div>

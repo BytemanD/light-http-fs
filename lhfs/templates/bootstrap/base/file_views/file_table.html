@@ -1,0 +1,26 @@
+<table class="table table-hover table-sm" style="width: 100%;">
+    <thead class="table-light">
+        <tr>
+            <th><b-form-checkbox v-model="fileSystem.selected.all" :indeterminate='fileSystem.selected.indeterminate' @change='fileSystem.selectAll()'></b-form-checkbox></th>
+            <th>[[ I18N.t('file') ]] <b-icon icon="sort-alpha-down"></b-icon></th>
+            <th>[[ I18N.t('size') ]] </th>
+            <th>[[ I18N.t('modifyTime') ]]</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr v-for="(item, index) in fileSystem.pathItems" v-model="fileSystem.pathItems">
+            <td><b-form-checkbox :value="item" v-model='fileSystem.selected.items' @change='fileSystem.selectOne(item)'></b-form-checkbox></td>
+            <td v-on:click="clickPath(item)">
+                <!-- <b-icon icon="folder-fill" variant="warning" v-if='item.folder'></b-icon> -->
+                <b-icon :icon="filesTable.getFileIcon(item)"></b-icon>
+               [[ item.name ]]
+            </td>
+            <td>[[ item.size ]]</td>
+            <td style="width: 120px">
+                <span style="font-size: small;">[[ item.mtime ]]</span>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+

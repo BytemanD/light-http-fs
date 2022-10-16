@@ -1,0 +1,14 @@
+<v-dialog v-model="filesTable.renameDialog.show" width="600">
+    <v-card>
+        <v-card-title class="headline grey lighten-2" primary-title>重命名</v-card-title>
+        <v-card-text>
+            <v-text-field v-model="filesTable.renameDialog.newName" v-on:keyup="filesTable.renameDialog.checkNewName()"
+                    :error="!!filesTable.renameDialog.error" :error-messages="filesTable.renameDialog.error"></v-text-field>
+        </v-card-text>
+        <v-divider></v-divider>
+        <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="primary" @click="filesTable.renamePath()" :disabled="filesTable.renameDialog.error">确定</v-btn>
+      </v-card-actions>
+    </v-card>
+</v-dialog>

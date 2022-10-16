@@ -1,13 +1,11 @@
-from operator import contains
+import logging
 import time
 import functools
 from threading import Timer
 
-from easy2use.common import log
-from easy2use.common import utils as e2u_utils
+from easy2use.common import pkg
 from easy2use.pysshpass import ssh
 
-from lhfs.common import exception
 from lhfs.common import conf
 from lhfs.common import constants
 from lhfs.common import exception
@@ -16,7 +14,7 @@ CONF = conf.CONF
 
 
 NODE_MANAGER = None
-LOG = log.getLogger(__name__)
+LOG = logging.getLogger(__name__)
 
 
 def timer(interval=1):
@@ -36,13 +34,13 @@ def timer(interval=1):
 
 
 def get_rpc_server(manager, host='0.0.0.0', port=8080):
-    driver_cls = e2u_utils.import_class(
+    driver_cls = pkg.import_class(
         constants.RPC_CLASS_MAPPING.get(CONF.lhfs.rpc_driver)[0])
     return driver_cls(manager, host=host, port=port)
 
 
 def get_rpc_client(transport=None):
-    driver_cls = e2u_utils.import_class(
+    driver_cls = pkg.import_class(
         constants.RPC_CLASS_MAPPING.get(CONF.lhfs.rpc_driver)[1])
     return driver_cls(transport)
 

@@ -1,0 +1,14 @@
+<v-dialog v-model="filesTable.newDirDialog.show" width="600">
+    <v-card>
+        <v-card-title class="headline grey lighten-2" primary-title>新建目录</v-card-title>
+        <v-card-text>
+            <v-text-field label="文件夹名" v-model="filesTable.newDirDialog.name"></v-text-field>
+            <v-alert dense  outlined type="info">[[ I18N.t('createDirsTips') ]]</v-alert>
+        </v-card-text>
+        <v-divider></v-divider>
+        <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="primary" @click="filesTable.newDir()">创建</v-btn>
+      </v-card-actions>
+    </v-card>
+</v-dialog>

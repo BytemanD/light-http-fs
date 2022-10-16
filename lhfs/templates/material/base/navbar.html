@@ -1,0 +1,31 @@
+<v-app-bar-nav-icon>
+    <v-avatar><v-img src="/static/favicon.svg" max-width="28" contain></v-img></v-avatar>
+</v-app-bar-nav-icon>
+<v-toolbar-title>{{ name }}</v-toolbar-title>
+<v-toolbar-title class="my-auto ml-7" style="width: 16%">
+    <v-btn text @click.stop="dialog = true"><v-icon>mdi-qrcode</v-icon>[[ I18N.t('scanLink') ]]</v-btn>
+</v-toolbar-title>
+<v-spacer></v-spacer>
+<v-text-field v-model="searchPartern" v-on:keyup.enter="search()" prepend-icon="mdi-magnify" hide-details single-line></v-text-field>
+<v-menu offset-y>
+    <template v-slot:activator="{ on, attrs }">
+        <v-btn text v-bind="attrs" v-on="on">[[ I18N.t('lang') ]]</v-btn>
+    </template>
+    <v-list small>
+        <v-list-item @click="setDisplayLang('en')"><v-list-item-title>[[ I18N.t('en') ]]</v-list-item-title></v-list-item>
+        <v-list-item @click="setDisplayLang('zh-CN')"><v-list-item-title>[[ I18N.t('zh-CN') ]]</v-list-item-title></v-list-item>
+    </v-list>
+</v-menu>
+<v-btn text tile height="100%" @click="settingsDialog.open()"><v-icon>mdi-cog</v-icon></v-btn>
+
+<v-dialog width="500" v-model="dialog">
+    <v-card @shown="alert(1)">
+        <v-card-title class="headline grey lighten-2" primary-title>[[ I18N.t('scanUsePhoneBrower') ]]</v-card-title>
+        <v-card-text @shown="alert(1)">
+            <div width="100px" hight="100px" id='connectionLink' class="d-flex justify-content-center"></div>
+        </v-card-text>
+        <v-divider></v-divider>
+    </v-card>
+</v-dialog>
+
+{% include "../extensions/settings.html" %}

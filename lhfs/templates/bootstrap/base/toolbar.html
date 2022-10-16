@@ -1,0 +1,63 @@
+<div class="col-lg-3 col-md-4 col-sm-12 mb-2">
+    <b-input-group size="sm" class="mb-2">
+        <b-input-group-prepend is-text><b-icon icon="server"></b-icon></b-input-group-prepend>
+        <b-form-select v-model="context.node" :options="nodes" :state="nodes_info[context.node].status=='active'" 
+                       v-on:change="refreshChildren()"></b-form-select>
+    </b-input-group>
+
+</div>
+<div class="col-lg-5 col-md-6 col-sm-12">
+    <b-button-group size="sm" class="mb-2">
+        <label class="btn btn-sm btn-outline-secondary" for="inputUploadFile">[[ I18N.t('uploadFiles') ]]</label>
+        <label class="btn btn-sm btn-outline-secondary" for="inputUploadDir">[[ I18N.t('uploadDir') ]]</label>
+        <label class="btn btn-sm btn-outline-secondary" v-b-modal.modal-newdir v-b-tooltip.hover :title="I18N.t('newDir')">
+            <b-icon icon="folder-plus" variant="info"></b-icon>
+        </label>
+    </b-button-group>
+
+    <b-button-group size="sm" class="mb-3">
+        <b-button variant="outline-primary" v-b-tooltip.hover :title="I18N.t('changeDisplay')" v-on:click="changeDisplayMode">
+            <b-icon :icon="fileSystem.displayMode"></b-icon>
+        </b-button>
+    </b-button-group>
+    <b-button-group size="sm" class="mb-3">
+        <b-button variant="outline-info" v-b-tooltip.hover :title="I18N.t('refresh')" v-on:click="fileSystem.refreshItems()">
+            <b-icon icon="arrow-repeat"></b-icon>
+        </b-button>
+    </b-button-group>
+
+    <b-button-group size="sm" class="mb-3">
+        <b-button variant="light" v-b-tooltip.hover :title="I18N.t('displayHide')" @click="fileSystem.toggleShowAll()">
+            <b-icon icon="eye-fill" v-if="fileSystem.showAll == true"></b-icon>
+            <b-icon icon="eye-slash-fill" v-else="fileSystem.showAll"></b-icon>
+        </b-button>
+    </b-button-group>
+
+    <form id="formFileUpload">
+        <input type="file" name="file" class="custom-file-input" id="inputUploadFile" required hidden multiple
+            v-on:change="uploadFile()">
+    </form>
+    <form id="formDirUpload">
+        <input type="file" name="file" id="inputUploadDir" webkitdirectory="" hidden required v-on:change="uploadDir()">
+    </form>
+</div>
+
+<div class="col-lg-2 col-md-2 col-sm-6">
+    <table v-b-tooltip.hover :title="fileSystem.getDiskUsage()">
+        <tr>
+            <td><b-icon icon="hdd-fill"></b-icon></td>
+            <td class="w-100">
+                <b-progress variant="success" :max="fileSystem.diskUsage.total" :value="fileSystem.diskUsage.used"></b-progress>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<!-- Modal new Dir -->
+<b-modal id="modal-newdir" :title="I18N.t('newDir')">
+    <b-form-input :state="newDir.validate" v-model="newDir.name" :placeholder="I18N.t('pleaseInputFileName')" v-on:input="checkIsDirInvalid()"></b-form-input>
+    <b-icon variant='info' icon='exclamation-circle-fill'></b-icon> [[ I18N.t('createDirsTips') ]]
+    <template #modal-footer>
+        <b-button block variant="primary" v-on:click="createDir()">[[ I18N.t('createNewDir') ]]</b-button>
+    </template>
+</b-modal>

@@ -1,0 +1,80 @@
+
+<v-col sm="12" md="4" lg="3" cols="12">
+    <v-select dense hide-details solo small :items="filesTable.nodes"
+        v-on:change="refreshChildren()" v-model="filesTable.node" prepend-icon="mdi-server"></v-select>
+</v-col>
+<v-col sm="12" md="5" lg="4" cols="6">
+    <v-btn icon large color="primary" @click="clickUploadFile()"><v-icon>mdi-file-upload</v-icon></v-btn>
+    <v-btn icon large color="primary" @click="clickUploadDir()"><v-icon>mdi-folder-upload</v-icon></v-btn>
+    <v-btn icon large color="primary" @click="filesTable.openNewDirDialog()"><v-icon>mdi-folder-plus</v-icon></v-btn>
+    <v-btn icon large color="error" @click="filesTable.deleteSeleted()"> <v-icon>mdi-trash-can</v-icon></v-btn>
+</v-col>
+<v-col sm="12" md="5" lg="3" cols="4">
+    <v-tooltip top>
+        <template v-slot:activator="{ on, attrs }">
+            <v-btn @click="changeDisplayMode()" icon v-bind="attrs" v-on="on">
+                <v-icon v-if="fileSystem.displayMode == 'table' ">mdi-table</v-icon>
+                <v-icon v-if="fileSystem.displayMode == 'list' ">mdi-view-list</v-icon>
+                <v-icon v-if="fileSystem.displayMode == 'grid' ">mdi-view-grid</v-icon>
+            </v-btn>
+        </template>
+        [[ I18N.t('changeDisplay') ]]
+    </v-tooltip>
+    <v-tooltip top>
+        <template v-slot:activator="{ on, attrs }">
+            <v-btn @click="filesTable.toggleShowAll()" icon v-bind="attrs" v-on="on">
+                <v-icon v-if="filesTable.showAll == true">mdi-eye-outline</v-icon>
+                <v-icon v-else="filesTable.showAll">mdi-eye-off</v-icon>
+            </v-btn>
+        </template>
+        [[ I18N.t('displayHide') ]]
+    </v-tooltip>
+    <v-tooltip top>
+        <template v-slot:activator="{ on, attrs }">
+            <v-btn @click="filesTable.refresh()" icon v-bind="attrs" v-on="on"><v-icon >mdi-refresh</v-icon></v-btn>
+        </template>
+        [[ I18N.t('refresh') ]]
+    </v-tooltip>
+</v-col>
+<v-col sm="12" md="3" lg="2" cols="2">
+    <v-tooltip top>
+        <template v-slot:activator="{ on, attrs }">
+            <v-btn width="100%" v-bind="attrs" v-on="on" class="ma-0" text>
+                <v-icon>mdi-harddisk</v-icon>
+                <v-progress-linear height="20" color="teal" :value="filesTable.diskUsage.used * 100 / filesTable.diskUsage.total"></v-progress-linear>
+            </v-btn>
+        </template>
+        [[ filesTable.getDiskUsage() ]]
+    </v-tooltip>
+</v-col>
+<!-- <div class="nav-link position-fixed fixed-bottom ">
+    <v-btn-toolbar v-if="filesTable.selected.length >= 1" class="d-flex justify-content-center">
+        <v-btn-group>
+            <template v-if="filesTable.selected.length == 1">
+                <v-btn v-b-tooltip.hover :title="I18N.t('rename')" v-b-modal.modal-rename>
+                    <b-icon icon="input-cursor" variant="info"></b-icon></v-btn>
+                <v-btn v-b-tooltip.hover :title="I18N.t('zip')" v-on:click="zipDirectory(filesTable.selected[0])" v-if="filesTable.selected[0].folder">
+                    <b-icon icon="archive" variant="info"></b-icon></v-btn>
+                <v-btn v-b-tooltip.hover :title="I18N.t('unzip')" v-on:click="unzip(filesTable.selected[0])" v-if="filesTable.selected[0].type=='zip'" >
+                    <b-icon icon="files" variant="info"></b-icon></b-icon></v-btn>
+                <v-btn v-b-tooltip.hover :title="I18N.t('displayQRCode')" v-b-modal.modal-filelink>
+                    <b-icon icon="upc-scan" variant="info"></b-icon></v-btn>
+                <v-btn v-b-tooltip.hover :title="I18N.t('view')" v-on:click="showFileModal(filesTable.selected[0])" v-b-modal.modal-file v-if="isEditable(filesTable.selected[0])">
+                    <b-icon icon="eye" variant="info"></b-icon></v-btn>
+                <v-btn v-b-tooltip.hover :title="I18N.t('download')" v-on:click="filesTable.downloadSelectedItems()" v-if="!filesTable.selected[0].folder" >
+                    <b-icon icon="download" variant="info"></b-icon></b-icon></v-btn>
+            </template>
+            <v-btn v-b-tooltip.hover :title="I18N.t('delete')" v-on:click="deleteSeleted()"><b-icon icon="trash" variant="danger"></b-icon></b-icon></v-btn>
+        </v-btn-group>
+    </v-btn-toolbar>
+     -->
+<form id="formFileUpload">
+    <input type="file" name="file" class="custom-file-input" id="inputUploadFile" required hidden multiple
+        v-on:change="uploadFile()">
+</form>
+<form id="formDirUpload">
+    <input type="file" name="file" id="inputUploadDir" webkitdirectory="" hidden required v-on:change="uploadDir()">
+</form>
+
+{% include '../extensions/newDir.html' %}
+{% include '../extensions/rename.html' %}

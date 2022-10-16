@@ -2,6 +2,7 @@ import os
 import time
 import mimetypes
 import abc
+
 import logging
 
 from easy2use import fs
@@ -13,7 +14,7 @@ from lhfs.common import conf
 from lhfs.common import constants
 from lhfs.common import exception
 from lhfs.common import utils
-from lhfs.fs import objects
+from lhfs.core import objects
 
 CONF = conf.CONF
 
@@ -45,11 +46,6 @@ class FSManager(object):
 
     @utils.remotable
     def get_abs_path(self, path):
-        # if isinstance(path, str):
-        #     return os.path.join(self.root, path)
-        # else:
-        #     # path is a list
-        #     return os.path.join(self.root, *path)
         lp = objects.LogicPath(self.root, path)
         return lp.abs_path()
 
@@ -101,12 +97,11 @@ class FSManager(object):
     def safe_path(path):
         if not path:
             return ['.']
-        if isinstance(path, list):
-            if len(path) > 0 and path[0] == '/':
-                return path[1:]
-            return path
-        else:
+        if not isinstance(path, list):
             return path.split('/')
+        if len(path) > 0 and path[0] == '/':
+            return path[1:]
+        return path
 
     @utils.remotable
     def ls(self, path, show_all):
@@ -119,8 +114,8 @@ class FSManager(object):
         return lp.file_content()
 
     def save_file(self, path, fo):
-        save_path = '{}/{}'.format(path, fo.filename)
-        save_dir = '{}/{}'.format(path, os.path.dirname((fo.filename)))
+        save_path = f'{path}/{fo.filename}'
+        save_dir = f'{path}/{os.path.dirname(fo.filename)}'
         dir_lp = objects.LogicPath(self.root, save_dir)
         if not dir_lp.exists():
             dir_lp.mkdir()
@@ -139,17 +134,14 @@ class FSManager(object):
 
     def abs_to_logic(self, abs_path):
         logic_path = abs_path[len(self.root):]
-        if OS.is_windows():
-            return '/'.join(logic_path.split('\\'))
-        else:
-            return logic_path
+        return '/'.join(logic_path.split('\\')) if OS.is_windows() else \
+            logic_path
 
     def _split_path(self, path_string):
         """Parse string path to list
         """
-        if OS.is_windows():
-            return path_string.split('\\')
-        return path_string.split('/')
+        return path_string.split('\\') if OS.is_windows() else \
+            path_string.split('/')
 
     @utils.remotable
     def find(self, partern):
@@ -159,7 +151,7 @@ class FSManager(object):
         matched_pathes = []
         for dirPath, name in fs.find(self.root, partern):
             logic_dir = self.abs_to_logic(dirPath)
-            lp = objects.LogicPath(self.root, '{}/{}'.format(logic_dir, name))
+            lp = objects.LogicPath(self.root, f'{logic_dir}/{name}')
             item = lp.dict_info()
             item.pardir = logic_dir
             matched_pathes.append(item.to_dict())
@@ -178,7 +170,12 @@ class FSManager(object):
 
     def zip_path(self, path):
         lp = objects.LogicPath(self.root, path)
-        return fs.zip_files(lp.abs_path())
+        return fs.zip_files(lp.abs_path(), zip_path=False,
+                            save_path=lp.abs_parent_path())
+
+    def unzip_path(self, path):
+        lp = objects.LogicPath(self.root, path)
+        return fs.unzip(lp.abs_path())
 
 
 class BaseNodeManager(FSManager):
@@ -201,9 +198,13 @@ class BaseNodeManager(FSManager):
     def start_rpc(self):
         if not self.rpc_server:
             return
-        LOG.info('starting rpc server: %s', self.rpc_server.transport)
         self.rpc_server.start(daemon=self.RUN_RPC_SERVER_AS_DAEMON)
-        LOG.info('started rpc server at %s', self.rpc_server.transport)
+
+    def stop_rpc(self):
+        if not self.rpc_server:
+            LOG.warning('rpc server is not running')
+            return
+        self.rpc_server.stop()
 
 
 class MasterManager(BaseNodeManager):
@@ -236,12 +237,16 @@ class MasterManager(BaseNodeManager):
         self.node_update(self.node.to_dict())
 
     def list_nodes(self):
-        LOG.info('list nodes')
         nodes = list(self.nodes.values())
         for node in nodes:
             node.status = self.is_node_active and constants.ACTIVE \
                 or constants.DOWN
         return nodes
+
+    def get_master_nodes(self):
+        for node in self.list_nodes():
+            if node.type == 'master':
+                return node
 
     def get_node(self, hostname):
         return self.nodes.get(hostname)

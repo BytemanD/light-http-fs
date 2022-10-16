@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>[[ name ]]</title>
+    {% include "base/requires.html" %}
+</head>
+
+<body>
+    <div id='app' class="container-lg">
+        <div class="row">
+            <div class="col-lg-12 col-sm-12">
+                {% include "base/navbar.html" %}
+
+            </div>
+        </div>
+        <div class="row" style="margin-top: 6px;">
+            {% include "base/toolbar.html" %}
+            {% include 'base/files.html' %}
+        </div>
+
+        {% include 'extensions/upload_progress.html' %}
+        <div class="nav-link position-fixed fixed-bottom ">
+            <b-button-toolbar v-if="fileSystem.selected.items.length >= 1" class="d-flex justify-content-center">
+                <b-button-group>
+                    <template v-if="fileSystem.selected.items.length == 1">
+                        <b-button v-b-tooltip.hover :title="I18N.t('rename')" v-b-modal.modal-rename>
+                            <b-icon icon="input-cursor" variant="info"></b-icon></b-button>
+                        <b-button v-b-tooltip.hover :title="I18N.t('zip')" v-on:click="zipDirectory(fileSystem.selected.items[0])" v-if="fileSystem.selected.items[0].folder">
+                            <b-icon icon="archive" variant="info"></b-icon></b-button>
+                        <b-button v-b-tooltip.hover :title="I18N.t('unzip')" v-on:click="unzip(fileSystem.selected.items[0])" v-if="fileSystem.selected.items[0].type=='zip'" >
+                            <b-icon icon="files" variant="info"></b-icon></b-icon></b-button>
+                        <b-button v-b-tooltip.hover :title="I18N.t('displayQRCode')" v-b-modal.modal-filelink>
+                            <b-icon icon="upc-scan" variant="info"></b-icon></b-button>
+                        <b-button v-b-tooltip.hover :title="I18N.t('view')" v-on:click="showFileModal(fileSystem.selected.items[0])" v-b-modal.modal-file v-if="isEditable(fileSystem.selected.items[0])">
+                            <b-icon icon="eye" variant="info"></b-icon></b-button>
+                        <b-button v-b-tooltip.hover :title="I18N.t('download')" v-on:click="fileSystem.downloadSelectedItems()" v-if="!fileSystem.selected.items[0].folder" >
+                            <b-icon icon="download" variant="info"></b-icon></b-icon></b-button>
+                    </template>
+                    <b-button v-b-tooltip.hover :title="I18N.t('delete')" v-on:click="deleteSeleted()"><b-icon icon="trash" variant="danger"></b-icon></b-icon></b-button>
+                </b-button-group>
+            </b-button-toolbar>
+
+            <b-button pill variant="warning" class="float-right"  v-b-toggle.sidebar-upload >
+                <b-icon icon="cloud-upload-fill" :animation="uploadQueue.completed < uploadQueue.tasks.length ? 'fade': ''" ></b-icon>
+                [[ uploadQueue.completed ]]/[[ uploadQueue.tasks.length ]]
+            </b-button>
+        </div>
+
+        {% include 'base/modals.html' %}
+        {% include 'base/footer.html' %}
+    </div>
+
+    <script type="module" src="/static/app.js"></script>
+
+</body>
+
+</html>

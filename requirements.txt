@@ -1,2 +1,6 @@
-flask
-git+https://github.com/fjboy/easy-to-use.git@v1.0.0
+pbr
+tornado
+prettytable
+futures==2.1.1
+nox
+https://github.com/fjboy/easy-to-use/releases/download/1.0.3/easy2use-1.0.3-py3-none-any.whl

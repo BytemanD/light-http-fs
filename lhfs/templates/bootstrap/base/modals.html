@@ -1,0 +1,43 @@
+
+<!-- Modal link -->
+<b-modal id="modal-link" :title="I18N.t('scanUsePhoneBrower')" header-bg-variant="dark"
+    header-text-variant="light" @shown="refreshConnectionLink()"  hide-footer>
+    <div class="modal-body middle">
+        <div id='connectionLink' class="d-flex justify-content-center"></div>
+    </div>
+</b-modal>
+
+<!-- Modal setting -->
+<b-modal id="modal-setting" :title="I18N.t('setting')" size="lg" >
+    {% include "extensions/settings.html" %}
+    <template #modal-footer>
+        <b-button variant="primary" v-on:click="saveSettings()">[[ I18N.t('save') ]]</b-button>
+    </template>
+</b-modal>
+
+<!-- Modal file content -->
+<b-modal id="modal-file" size="lg" :title="fileEditor.name"  hide-footer>
+    <pre v-if="fileEditor.mode=='code'" class="hljs"><div-html v-html="fileEditor.content" ></div-html></pre>
+    <div-html v-else-if="fileEditor.mode=='html'" v-html="fileEditor.content"></div-html>
+    <textarea v-else class="form-control" v-model="fileEditor.content" cols="30" rows="20"></textarea>
+</b-modal>
+
+<!-- Modal qrcode -->
+<b-modal id="modal-filelink" @shown="showFileQrcode()"  hide-footer>
+    <div id='fileQrcode' class='d-flex justify-content-center'></div>
+</b-modal>
+
+<!-- Modal rename -->
+<b-modal id="modal-rename" :title="I18N.t('rename')" @shown="showRenameModal()">
+    <div class="mb-3">
+        <label for="exampleFormControlInput1" class="form-label">[[ I18N.t('filename') ]]</label>
+        <b-form-input class="form-control" :value="renameItem.name" disabled></b-form-input>
+    </div>
+    <div class="mb-3">
+        <label for="exampleFormControlTextarea1" class="form-label">[[ I18N.t('newFileName') ]]</label>
+        <b-form-input class="form-control" v-model="renameItem.newName" required></b-form-input>
+    </div>
+    <template #modal-footer>
+        <b-button block variant="warning" v-on:click="renameDir()">[[ I18N.t('rename') ]]</b-button>
+    </template>
+</b-modal>
