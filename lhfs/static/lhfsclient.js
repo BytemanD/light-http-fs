@@ -114,16 +114,16 @@ class LHFSClient {
             return await this.put(`/v1/fs/${node}${safePath}`,
                                   { 'dir': { 'new_name': new_name } })
         }
-        this.cat = function (file) {
-            let safe_path = this._safe_path(file);
-            return axios.get(`/v1/file/${this.context.node}${safe_path}`)
+        this.cat = function (node, file) {
+            let safePath = this._safe_path(file);
+            return axios.get(`/v1/file/${node}${safePath}`)
         };
-        this.upload = function (path, file, uploadCallback = null) {
+        this.upload = async function (node, path, file, uploadCallback = null) {
             let formData = new FormData();
             formData.append('file', file);
             let safe_path = this._safe_path(path);
             return axios({
-                url: `/v1/file/${this.context.node}${safe_path}`,
+                url: `/v1/file/${node}${safe_path}`,
                 method: 'POST',
                 data: formData,
                 headers: { 'Content-Type': 'multipart/form-data' },

@@ -60,20 +60,24 @@ export class RenameDialog extends Dialog {
         if (!this.newName){
             this.error = I18N.t('fileNameCannotEmpty');
         } else if (this.item.name == this.newName) {
-            this.error =  '请输入新名字';
+            this.error = I18N.t('pleaseInputName');
         } else {
             this.error = null;
         }
     }
 }
+
+const SETTING_ITEMS = {
+    pbarHeight: new SettingItem('range', 5, { min: 1, max: 10, unit: 'px', description: 'pbrHeight' }),
+    verboseMessage: new SettingItem('switch', false, { description: 'showVerboseMessages' }),
+    nodesRefreshInterval: new SettingItem('range', 10, { min: 1, max: 60, step: 5, description: 'nodesRefreshInterval' }),
+    rowsPerPage: new SettingItem('range', 100, { min: 10, max: 100, step: 10, description: 'rowsPerPage' }),
+}
+
 export class SettingsDialog extends Dialog {
     constructor (){
         super();
-        this.items =  [
-            new SettingItem('range', 'pbarHeight', 5, { min: 1, max: 10, unit: 'px', description: 'pbrHeight' }),
-            new SettingItem('switch', 'verboseMessage', false, { description: 'showVerboseMessages' }),
-            new SettingItem('range', 'nodesRefreshInterval', 10, { min: 1, max: 60, description: 'nodesRefreshInterval' }),
-        ];
+        this.items = SETTING_ITEMS
     }
     saveSettings() {
         console.warn('TODO: saving settings');

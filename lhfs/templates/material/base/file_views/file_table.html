@@ -1,6 +1,7 @@
-<v-data-table :headers="filesTable.headers" :items="filesTable.items" item-key="name"
-  :items-per-page="filesTable.itemsPerPage" :search="filesTable.search"
-  dense show-select v-model="filesTable.selected">
+<v-data-table dense show-select :hide-default-footer="filesTable.items.length<=settingsDialog.items.rowsPerPage.current"
+    :headers="filesTable.headers" :items="filesTable.items" item-key="name" :search="filesTable.search"
+    :items-per-page="settingsDialog.items.rowsPerPage.current"
+    v-model="filesTable.selected">
 
   <template v-slot:item.name="{ item }">
     <v-template @click="filesTable.clickDir(item)">

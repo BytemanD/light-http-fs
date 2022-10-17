@@ -14,7 +14,7 @@
                         <b-badge pill variant="info" v-b-modal.modal-upload>[[ ((item.loaded / item.total) * 100).toFixed(2) ]]%</b-badge>
                         <b-badge pill variant="primary">[[ item.target ]]</b-badge>
                         [[ item.file ]]
-                        <b-progress :max="item.total" variant="info" class="mb-3" :height="conf.pbarHeight.current + 'px'" animated>
+                        <b-progress :max="item.total" variant="info" class="mb-3" :height="settingsDialog.items.pbarHeight.current + 'px'" animated>
                             <b-progress-bar :value="item.loaded"></b-progress-bar>
                         </b-progress>
                     </b-alert>
@@ -24,7 +24,7 @@
                 <template v-for="(item, index) in uploadQueue.tasks">
                     <b-alert show variant="success" v-if="item.status=='completed'">
                             <b-badge pill variant="primary">[[ item.target ]]</b-badge> [[ item.file ]]
-                            <b-progress :max="item.total" variant="success" class="mb-3" :height="conf.pbarHeight.current + 'px'">
+                            <b-progress :max="item.total" variant="success" class="mb-3" :height="settingsDialog.items.pbarHeight.current + 'px'">
                                 <b-progress-bar :value="item.loaded"></b-progress-bar>
                             </b-progress>
                     </b-alert>

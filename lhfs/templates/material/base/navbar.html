@@ -2,25 +2,27 @@
     <v-avatar><v-img src="/static/favicon.svg" max-width="28" contain></v-img></v-avatar>
 </v-app-bar-nav-icon>
 <v-toolbar-title>{{ name }}</v-toolbar-title>
+
 <v-toolbar-title class="my-auto ml-7">
-    <v-btn text @click.stop="dialog = true"><v-icon>mdi-qrcode</v-icon>[[ I18N.t('scanLink') ]]</v-btn>
-</v-toolbar-title>
-<v-toolbar-title class="my-auto ml-7" style="width: 16%">
-    <v-select solo-inverted flat hide-details prepend-icon="mdi-server" :items="filesTable.nodes" v-on:change="refreshChildren()" v-model="filesTable.node"></v-select>
+    <v-select solo-inverted hide-details class="rounded-0" prefix='节点：'
+        :items="filesTable.nodes" v-on:change="refreshChildren()" v-model="filesTable.node"></v-select>
 </v-toolbar-title>
 
 <v-spacer></v-spacer>
-<v-text-field v-model="searchPartern" v-on:keyup.enter="search()" prepend-icon="mdi-magnify" hide-details single-line></v-text-field>
-<v-menu offset-y>
+<v-text-field rounded hide-details single-line append-icon="mdi-magnify" background-color="grey lighten-1"
+    v-model="searchPartern" placeholder="搜索" v-on:keyup.enter="search()" ></v-text-field>
+<v-btn text tile height="100%" @click.stop="dialog = true"><v-icon>mdi-qrcode</v-icon></v-btn>
+<v-btn text tile height="100%" @click="settingsDialog.open()"><v-icon>mdi-cog</v-icon></v-btn>
+
+<v-menu offset-y >
     <template v-slot:activator="{ on, attrs }">
-        <v-btn text v-bind="attrs" v-on="on">[[ I18N.t('lang') ]]</v-btn>
+        <v-btn text tile height="100%" v-bind="attrs" v-on="on"><v-icon>mdi-translate</v-icon>[[ I18N.t(I18N.locale) ]]</v-btn>
     </template>
     <v-list small>
         <v-list-item @click="setDisplayLang('en')"><v-list-item-title>[[ I18N.t('en') ]]</v-list-item-title></v-list-item>
         <v-list-item @click="setDisplayLang('zh-CN')"><v-list-item-title>[[ I18N.t('zh-CN') ]]</v-list-item-title></v-list-item>
     </v-list>
 </v-menu>
-<v-btn text tile height="100%" @click="settingsDialog.open()"><v-icon>mdi-cog</v-icon></v-btn>
 
 <v-dialog width="500" v-model="dialog">
     <v-card @shown="alert(1)">

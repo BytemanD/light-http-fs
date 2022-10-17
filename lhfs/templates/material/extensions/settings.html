@@ -11,16 +11,13 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="item in settingsDialog.items">
-                    <td>[[ item.name  ]]</td>
+                <tr v-for="(item, name) in settingsDialog.items">
+                    <td>[[ name  ]]</td>
                     <td>[[ I18N.t(item.description) ]]</td>
-                    <td><template v-if="item.type=='range'">
-                            <v-tooltip top>
-                                <template v-slot:activator="{ on, attrs }">
-                                    <v-slider  v-bind="attrs" v-on="on" v-model="item.current" class="align-center" :max="item.max" :min="item.min" hide-details></v-slider>
-                                </template>
-                                [[ item.current ]][[ item.unit ]], [[ I18N.t('range') ]]: [[ item.min ]]~[[ item.max ]]
-                            </v-tooltip>
+                    <td>
+                        <template v-if="item.type=='range'">
+                            <v-slider hide-details ticks v-model="item.current" class="align-center" thumb-label="always" thumb-size="26"
+                                :max="item.max" :min="item.min" :step="item.step || 1"></v-slider>
                         </template>
                         <template v-if="item.type=='switch'"><v-switch dense hide-details v-model="item.current" class="ma-2"></v-switch></template>
                         <template v-if="item.type=='input'"><v-text-field dense hide-details v-model="item.current"></v-text-field></template>

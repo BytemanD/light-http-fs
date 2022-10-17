@@ -1,46 +1,54 @@
-<v-col sm="6" md="6" lg="8" cols="8">
-    <v-btn icon large color="primary" @click="clickUploadFile()"><v-icon>mdi-file-upload</v-icon></v-btn>
-    <v-btn icon large color="primary" @click="clickUploadDir()"><v-icon>mdi-folder-upload</v-icon></v-btn>
-    <v-btn icon large color="primary" @click="filesTable.openNewDirDialog()"><v-icon>mdi-folder-plus</v-icon></v-btn>
-    <v-btn icon large color="error" @click="filesTable.deleteSeleted()"> <v-icon>mdi-trash-can</v-icon></v-btn>
+
+<v-col sm="6" md="6" lg="8" cols="8" class="px-1">
+    <v-sheet elevation="2">
+        <v-btn icon color="primary" @click="clickUploadFile()"><v-icon>mdi-file-upload</v-icon></v-btn>
+        <v-btn icon color="primary" @click="clickUploadDir()"><v-icon>mdi-folder-upload</v-icon></v-btn>
+        <v-btn icon color="warning" @click="filesTable.openNewDirDialog()"><v-icon>mdi-folder-plus</v-icon></v-btn>
+        <v-btn icon color="error" @click="filesTable.deleteSeleted()"> <v-icon>mdi-trash-can</v-icon></v-btn>
+    </v-sheet>
 </v-col>
-<v-col sm="6" md="6" lg="2" cols="2">
-    <v-tooltip top>
-        <template v-slot:activator="{ on, attrs }">
-            <v-btn @click="changeDisplayMode()" icon v-bind="attrs" v-on="on">
-                <v-icon v-if="fileSystem.displayMode == 'table' ">mdi-table</v-icon>
-                <v-icon v-if="fileSystem.displayMode == 'list' ">mdi-view-list</v-icon>
-                <v-icon v-if="fileSystem.displayMode == 'grid' ">mdi-view-grid</v-icon>
-            </v-btn>
-        </template>
-        [[ I18N.t('changeDisplay') ]]
-    </v-tooltip>
-    <v-tooltip top>
-        <template v-slot:activator="{ on, attrs }">
-            <v-btn @click="filesTable.toggleShowAll()" icon v-bind="attrs" v-on="on">
-                <v-icon v-if="filesTable.showAll == true">mdi-eye-outline</v-icon>
-                <v-icon v-else="filesTable.showAll">mdi-eye-off</v-icon>
-            </v-btn>
-        </template>
-        [[ I18N.t('displayHide') ]]
-    </v-tooltip>
-    <v-tooltip top>
-        <template v-slot:activator="{ on, attrs }">
-            <v-btn @click="filesTable.refresh()" icon v-bind="attrs" v-on="on"><v-icon >mdi-refresh</v-icon></v-btn>
-        </template>
-        [[ I18N.t('refresh') ]]
-    </v-tooltip>
+<v-col sm="6" md="6" lg="2" cols="2" class="px-1">
+    <v-sheet elevation="2">
+        <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+                <v-btn @click="changeDisplayMode()" icon v-bind="attrs" v-on="on">
+                    <v-icon v-if="fileSystem.displayMode == 'table' ">mdi-table</v-icon>
+                    <v-icon v-if="fileSystem.displayMode == 'list' ">mdi-view-list</v-icon>
+                    <v-icon v-if="fileSystem.displayMode == 'grid' ">mdi-view-grid</v-icon>
+                </v-btn>
+            </template>
+            [[ I18N.t('changeDisplay') ]]
+        </v-tooltip>
+        <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+                <v-btn @click="filesTable.toggleShowAll()" icon v-bind="attrs" v-on="on">
+                    <v-icon v-if="filesTable.showAll == true">mdi-eye-outline</v-icon>
+                    <v-icon v-else="filesTable.showAll">mdi-eye-off</v-icon>
+                </v-btn>
+            </template>
+            [[ I18N.t('displayHide') ]]
+        </v-tooltip>
+        <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+                <v-btn @click="filesTable.refresh()" icon v-bind="attrs" v-on="on"><v-icon >mdi-refresh</v-icon></v-btn>
+            </template>
+            [[ I18N.t('refresh') ]]
+        </v-tooltip>
+
+    </v-sheet>
 </v-col>
-<v-col sm="12" md="12" lg="2" cols="2">
-    <v-tooltip top>
-        <template v-slot:activator="{ on, attrs }">
-            <v-btn width="100%" v-bind="attrs" v-on="on" class="ma-0" text>
-                <v-icon>mdi-harddisk</v-icon>
-                <v-progress-linear height="20" color="teal" :value="filesTable.diskUsage.used * 100 / filesTable.diskUsage.total"></v-progress-linear>
-            </v-btn>
-        </template>
-        [[ filesTable.getDiskUsage() ]]
-    </v-tooltip>
+<v-col sm="12" md="12" lg="2" cols="2" class="px-1">
+    <v-sheet elevation="2">
+        <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+                <v-btn width="100%" v-bind="attrs" v-on="on" class="ma-0" text>
+                    <v-icon>mdi-harddisk</v-icon>
+                    <v-progress-linear height="20" color="teal" :value="filesTable.diskUsage.used * 100 / filesTable.diskUsage.total"></v-progress-linear>
+                </v-btn>
+            </template>
+            [[ filesTable.getDiskUsage() ]]
+        </v-tooltip>
+    </v-sheet>
 </v-col>
 <!-- <div class="nav-link position-fixed fixed-bottom ">
     <v-btn-toolbar v-if="filesTable.selected.length >= 1" class="d-flex justify-content-center">

@@ -5,8 +5,8 @@ export class FilesTable {
     constructor() {
         this.headers = [
             {text: '文件名', value: 'name'},
-            {text: '大小', value: 'size'},
-            {text: '修改时间', value: 'mtime'},
+            {text: '大小', value: 'size', align: 'right'},
+            {text: '修改时间', value: 'mtime', align: 'right'},
             {text: '操作', value: 'actions'},
         ];
         this.itemsPerPage = 10;
@@ -98,6 +98,7 @@ export class FilesTable {
             await this.api.rm(this.node, dirPath, true);
             this.refresh();
         }
+        VuetifyMessageSnackbar.Notify.bottomLeft().success(I18N.t('deleteSuccess'))
         this.selected = [];
     }
     getFileIcon(item) {
@@ -158,6 +159,7 @@ export class FilesTable {
         let zipPath = `${this.pathList.join('/')}/${item.name}`;
         let self = this;
         await this.api.zipDirectory(zipPath);
+        VuetifyMessageSnackbar.Notify.bottomLeft().success(I18N.t('zipSuccess'))
         self.refresh()
     };
     async openRenameDialog(item) {
@@ -180,10 +182,14 @@ export class FilesTable {
             this.renameDialog.error = I18N.t('fileNameCannotEmpty');
             return;
         }
-        await this.api.rename(this.node, this.pathList.concat(this.renameDialog.item.name).join('/'),
-                              this.renameDialog.newName);
-        console.log(I18N.t('renameSuccess'));
+        await this.api.rename(this.node, this.pathList.concat(this.renameDialog.item.name).join('/'), this.renameDialog.newName);
+        VuetifyMessageSnackbar.Notify.bottomLeft().success(I18N.t('renameSuccess'))
         this.refresh();
         this.renameDialog.hide()
+    }
+    upload(file, callback=null){
+        return this.api.upload(
+            this.node, this.pathList.join('/'), file,
+            callback)
     }
 }

@@ -16,7 +16,6 @@ default_options = [
 api_options = [
     cfg.Option('host', default='{my_ip}'),
     cfg.IntOption('port', default=80),
-    
 ]
 lhfs_options = [
     cfg.Option('host', default=socket.gethostname()),

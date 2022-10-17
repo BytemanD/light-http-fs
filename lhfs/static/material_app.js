@@ -7,13 +7,8 @@ new Vue({
     delimiters: ['[[', ']]'],
     vuetify: new Vuetify(),
     data: {
-        settingItems: [
-            new SettingItem('range', 'pbarHeight', 5, { min: 1, max: 10, unit: 'px', description: 'pbrHeight' }),
-            new SettingItem('switch', 'verboseMessage', false, { description: 'showVerboseMessages' }),
-            new SettingItem('range', 'nodesRefreshInterval', 10, { min: 1, max: 60, description: 'nodesRefreshInterval' }),
-        ],
-        // conf is a mapping parsed from settingItems
         conf: {},
+        // conf is a mapping parsed from settingItems
         downloadFile: { name: '', qrcode: '' },
         fsClient: new LHFSClient(),
         renameItem: { name: '', newName: '' },
@@ -146,35 +141,6 @@ new Vue({
         toggleShowAll: function () {
             this.refreshChildren();
         },
-        renameDir: function () {
-            if (this.renameItem.name == this.renameItem.newName) {
-                return;
-            }
-            if (this.renameItem.newName == '') {
-                this.log.error(I18N.t('fileNameCannotEmpty'));
-                return;
-            }
-            var self = this;
-            this.fileSystem.renameItemName(
-                self.renameItem.name, self.renameItem.newName
-            ).then(success => {
-                self.log.info(I18N.t('renameSuccess'));
-                self.refreshChildren();
-                self.fileSystem.selected.items = [];
-            }).catch(error => {
-                let error_data = error.response.data;
-                self.log.error(`${I18N.t('renameFailed')}, ${error_data.error}`, 5000)
-            });
-        },
-        renameItem: function (item, newName) {
-            this.fsClient.rename(self.getFSPath(item.name), newName).then(success => {
-                self.log.info(I18N.t('renameSuccess'));
-                self.refreshChildren();
-            }).catch(error => {
-                let error_data = error.response.data;
-                self.log.error(`${I18N.t('renameFailed')}, ${error_data.error}`, 5000)
-            });
-        },
         showRenameModal: function () {
             let item = this.fileSystem.selected.items[0];
             this.renameItem = { name: item.name, newName: item.name }
@@ -185,10 +151,10 @@ new Vue({
             console.info(`准备上传 ${files.length} 个文件`);
             for (let index = 0; index < files.length; index++) {
                 let file = files[index];
-                let progress = { file: file.name, loaded: 0, total: 100, status: 'waiting', target: this.context.node };
+                let progress = { file: file.name, loaded: 0, total: 100, status: 'waiting', target: this.filesTable.node };
                 self.uploadQueue.tasks.push(progress);
-                self.fsClient.upload(
-                    self.getPathText(self.fileSystem.pathList).join('/'), file,
+                self.filesTable.upload(
+                    file, 
                     uploadEvent => {
                         progress.loaded = uploadEvent.loaded;
                         progress.total = uploadEvent.total;
@@ -362,9 +328,9 @@ new Vue({
         var self = this;
         await this.filesTable.refreshNodes();
         this.filesTable.refresh();
-        this.settingItems.forEach(item => {
-            self.conf[item.name] = item;
-        });
+        // this.settingsDialog.items.forEach(item => {
+        //     self.conf[item.name] = item;
+        // });
 
         // this.fsClient.context = this.context;
         // this.fileSystem.init(this.fsClient);

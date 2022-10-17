@@ -80,6 +80,11 @@ const MESSAGES = {
         unzip: 'unzip',
         showVerboseMessages: 'show verbose messages',
         changeDisplay: 'toggle display view',
+        pleaseInputName: 'please input name',
+        zipSuccess: 'zip success',
+        deleteSuccess: 'delete success',
+        'zh-CN': '简体中文',
+        'en': 'English',
     },
     'zh-CN': {
         ok: '确定',
@@ -162,6 +167,11 @@ const MESSAGES = {
         unzip: '解压',
         showVerboseMessages: '显示更多消息',
         changeDisplay: '切换视图',
+        pleaseInputName: '请输入名字',
+        zipSuccess: '压缩成功',
+        deleteSuccess: '删除成功',
+        'zh-CN': '简体中文',
+        'en': 'English',
     },
 };
 

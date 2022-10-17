@@ -70,17 +70,17 @@ class LoggerWithBVToast {
 }
 
 class SettingItem {
-    constructor(type, name, defaultVal, properties = {}) {
+    constructor(type, defaultVal, properties = {}) {
         // properties like:
         // {min: 1, max:2, description: 'help info of item'}
         this.type = type;
-        this.name = name;
         this.defaultVal = defaultVal;
         this.properties = properties;
         this.current = defaultVal;
 
         this.min = this.properties.min || 0;
         this.max = this.properties.max || 0;
+        this.step = this.properties.step || 1;
         this.unit = this.properties.unit || '';
         this.description = this.properties.description || '';
     }
@@ -289,11 +289,5 @@ class FileSystem {
         this.getItemLink = function(item){
             return `${this.getEndpoint()}${this.getDownloadUrl(item)}`
         };
-        this.renameItem = function(item, newName){
-            return this.api.rename(this.getItemPath(item), newName)
-        };
-        this.renameItemName = function(itemName, newName){
-            return this.api.rename(this.pathList.concat(itemName).join('/'), newName);
-        }
     };
 }

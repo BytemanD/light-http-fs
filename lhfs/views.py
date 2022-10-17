@@ -162,7 +162,7 @@ class FileViewV1(BaseHandler):
                 return
             directory = os.path.dirname(abs_path)
             send_file = os.path.basename(abs_path)
-            with open(os.path.join(directory, send_file)) as f:
+            with open(os.path.join(directory, send_file), 'rb') as f:
                 while True:
                     data = f.read(1024 * 10)
                     if not data:
@@ -271,7 +271,7 @@ class FsActionView(BaseHandler):
     def do_zip(self, data):
         path = data.get('doZip', {}).get('path')
         if not path:
-            self._finish_with(400, {'error': f'path is none'})
+            self._finish_with(400, {'error': 'path is none'})
             return
         zip_name = NODE_MANAGER.zip_path(path)
         LOG.debug('zip name is : %s', zip_name)
